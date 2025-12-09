@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Mi Caserito App</string>
+    <string name="home_header">Inicio</string>
+    <string name="discover_header">Recomendaciones</string>
+    <string name="profile_header">Perfil</string>
+    <string name="chat_header">Chat</string>
+    <string name="ticket_header">Ticket de Entrega</string>
+    <string name="btn_login">Iniciar Sesión</string>
+    <string name="btn_register">Registrarse</string>
+</resources>
