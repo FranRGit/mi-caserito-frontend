@@ -15,32 +15,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiCaseritoApp">
         <activity
-            android:name=".ui.Ticket.TicketActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.Auth.AuthActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.Chat.ChatActivity"
+            android:name=".ui.Main.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.Discover.DiscoverActivity"
+            android:name=".ui.Extra.Security.SecurityActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.Home.HomeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.Profile.ProfileActivity"
+            android:name=".ui.Extra.Ticket.TicketActivity"
             android:exported="false" />
         <activity
             android:name=".ui.Splash.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

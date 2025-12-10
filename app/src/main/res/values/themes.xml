@@ -1,11 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.MiCaserito" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <style name="Base.Theme.MiCaserito" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorSecondary">@color/secondary_color</item>
         <item name="android:fontFamily">@font/inter</item>
     </style>
 
-    <style name="Theme.MiCaseritoApp" parent="Base.Theme.MiCaseritoApp" />
+    <style name="Theme.MiCaseritoApp" parent="Base.Theme.MiCaserito" />
 </resources>

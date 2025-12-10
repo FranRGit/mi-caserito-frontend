@@ -15,9 +15,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
+import com.micaserito.app.ui.Main.MainActivity
 import com.micaserito.app.R
 import com.micaserito.app.ui.Auth.AuthActivity
-import com.micaserito.app.ui.Home.HomeActivity
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,7 +99,7 @@ class SplashActivity : AppCompatActivity() {
                 .scaleX(0.8f).scaleY(0.8f) // Se encoge al presionar
                 .setDuration(100)
                 .withEndAction {
-                    val intent = Intent(this, HomeActivity::class.java)
+                    val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     finish()
                 }
