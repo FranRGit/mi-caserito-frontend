@@ -12,7 +12,7 @@ import com.micaserito.app.data.api.MockData // Usamos tu data falsa
 import com.micaserito.app.ui.Home.HomeFeedAdapter
 
 class HomeFragment : Fragment() {
-    //EJEMPLO BORRA TODO
+    //EJEMPLO: SOLO PARA PRUEBA, BORRA TODO
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
