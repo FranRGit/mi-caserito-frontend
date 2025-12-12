@@ -240,4 +240,8 @@ object MockData {
             )
         }
     }
+    // CORRECCIÓN AÑADIDA: Punto de acceso para el HomeFragment
+    fun getMockService(): ApiService {
+        return MockApiService()
+    }
 }

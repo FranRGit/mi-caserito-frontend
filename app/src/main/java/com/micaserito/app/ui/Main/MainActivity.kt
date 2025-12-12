@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateTo(fragmentId: Int) {
+    fun navigateTo(fragmentId: Int) {
         // Solo navega si no estamos ya en esa pantalla
         if (navController.currentDestination?.id != fragmentId) {
             navController.navigate(fragmentId)
