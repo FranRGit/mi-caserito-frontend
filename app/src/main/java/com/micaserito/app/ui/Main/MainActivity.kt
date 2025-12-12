@@ -1,10 +1,11 @@
 package com.micaserito.app.ui.Main
 
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.micaserito.app.R
@@ -39,20 +40,29 @@ class MainActivity : AppCompatActivity() {
         btnProfile.setOnClickListener { navigateTo(R.id.nav_profile) }
 
         btnPlus.setOnClickListener {
-            showActionMenu()
+            showActionMenu(it)
         }
     }
 
-    fun navigateTo(fragmentId: Int) {
-        // Solo navega si no estamos ya en esa pantalla
+    private fun navigateTo(fragmentId: Int) {
         if (navController.currentDestination?.id != fragmentId) {
             navController.navigate(fragmentId)
         }
     }
 
-    private fun showActionMenu() {
-        // Mensaje simple para probar que funciona
-        Toast.makeText(this, "Abrir Menú: Reportes / Tickets", Toast.LENGTH_SHORT).show()
+    private fun showActionMenu(anchor: View) {
+        val popup = PopupMenu(this, anchor)
+        popup.menuInflater.inflate(R.menu.plus_button_menu, popup.menu)
 
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_security -> {
+                    navigateTo(R.id.nav_security)
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
     }
 }

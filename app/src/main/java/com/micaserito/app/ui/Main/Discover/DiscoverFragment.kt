@@ -1,60 +1,136 @@
 package com.micaserito.app.ui.Main.Discover
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.ChipGroup
 import com.micaserito.app.R
+import com.micaserito.app.data.model.FeedItem
+import com.micaserito.app.data.model.ItemDetails
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class DiscoverFragment : Fragment(R.layout.fragment_discover) {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [DiscoverFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class DiscoverFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var adapter: DiscoverAdapter
+    private var isLoading = false
+    private var currentPage = 1
+    private var currentFilter = "todo" // "todo", "negocios", "productos"
+    private var searchQuery = "" // Para la búsqueda
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // 1. Configurar RecyclerView
+        val rvFeed = view.findViewById<RecyclerView>(R.id.rvDiscoverFeed)
+        val layoutManager = LinearLayoutManager(requireContext())
+        rvFeed.layoutManager = layoutManager
+        adapter = DiscoverAdapter()
+        rvFeed.adapter = adapter
+
+        // 2. Configurar Barra de Búsqueda
+        val searchBar = view.findViewById<EditText>(R.id.searchBar)
+        searchBar.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                searchQuery = v.text.toString()
+                resetAndLoad()
+                true
+            } else {
+                false
+            }
         }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_discover, container, false)
-    }
+        // 3. Botón de Mis Tickets
+        val btnTickets = view.findViewById<ImageButton>(R.id.btnTickets)
+        btnTickets.setOnClickListener {
+            findNavController().navigate(R.id.nav_tickets)
+        }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment DiscoverFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            DiscoverFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+        // 4. Configurar Chips (Filtros)
+        val chipGroup = view.findViewById<ChipGroup>(R.id.chipGroupFilter)
+        chipGroup.setOnCheckedChangeListener { _, checkedId ->
+            currentFilter = when (checkedId) {
+                R.id.chipNegocios -> "negocios"
+                R.id.chipProductos -> "productos"
+                else -> "todo"
+            }
+            resetAndLoad()
+        }
+
+        // 5. Infinite Scroll
+        rvFeed.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount && firstVisibleItemPosition >= 0) {
+                    loadMoreData()
                 }
             }
+        })
+
+        // Carga Inicial
+        loadData()
+    }
+
+    private fun resetAndLoad() {
+        currentPage = 1
+        adapter.clear()
+        loadData()
+    }
+
+    private fun loadData() {
+        isLoading = true
+        view?.findViewById<View>(R.id.progressBarDiscover)?.visibility = View.VISIBLE
+
+        // SIMULACIÓN DE API CON DATOS DE EJEMPLO
+        android.os.Handler().postDelayed({
+            isLoading = false
+            view?.findViewById<View>(R.id.progressBarDiscover)?.visibility = View.GONE
+
+            val mockData = createMockData(currentPage, currentFilter, searchQuery)
+            if (mockData.isNotEmpty()) {
+                adapter.addList(mockData)
+            } else {
+                Toast.makeText(context, "No hay más resultados", Toast.LENGTH_SHORT).show()
+            }
+        }, 1200)
+    }
+
+    private fun loadMoreData() {
+        currentPage++
+        loadData()
+    }
+
+    // --- FUNCIÓN DE SIMULACIÓN (BORRAR AL CONECTAR API REAL) ---
+    private fun createMockData(page: Int, filter: String, query: String): List<FeedItem> {
+        if (page > 3) return emptyList() // Simular que no hay más páginas
+
+        val items = mutableListOf<FeedItem>()
+
+        // Si hay una búsqueda, mostrar solo un item de ejemplo
+        if (query.isNotEmpty()) {
+            items.add(FeedItem("product", ItemDetails(nombreProducto = "Resultado de '$query'", precioBase = 99.9, nombreNegocio = "Búsqueda Rápida")))
+            return items
+        }
+
+        // Lógica de Filtros
+        if (filter == "todo" || filter == "productos") {
+            items.add(FeedItem("product", ItemDetails(nombreProducto = "Pollo a la brasa (Pág $page)", precioBase = 25.5, nombreNegocio = "Pardos Chicken")))
+            items.add(FeedItem("product", ItemDetails(nombreProducto = "Lomo Saltado (Pág $page)", precioBase = 35.0, nombreNegocio = "Tanta")))
+        }
+
+        if (filter == "todo" || filter == "negocios") {
+            items.add(FeedItem("post", ItemDetails(descripcion = "¡Nuevo local en Miraflores! (Pág $page)", fechaCreacion = "Hace 2 horas", nombreNegocio = "Starbucks")))
+        }
+
+        return items.shuffled() // Mezclar para que se vea más real
     }
 }
