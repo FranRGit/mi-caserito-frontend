@@ -2,62 +2,51 @@ package com.micaserito.app.ui.Main.Tickets
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.R
-import com.micaserito.app.data.model.TicketSummary
+import com.micaserito.app.data.api.MockData
 
 class TicketsFragment : Fragment(R.layout.fragment_tickets) {
 
     private lateinit var adapter: TicketsAdapter
-    private var currentPage = 1
-    private var isLoading = false
+    private lateinit var rvTickets: RecyclerView
+    private lateinit var tvNoTickets: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val rvTickets = view.findViewById<RecyclerView>(R.id.rvTickets)
-        val layoutManager = LinearLayoutManager(context)
-        rvTickets.layoutManager = layoutManager
+        rvTickets = view.findViewById(R.id.rvTickets)
+        tvNoTickets = view.findViewById(R.id.tvNoTickets)
+        rvTickets.layoutManager = LinearLayoutManager(context)
         adapter = TicketsAdapter()
         rvTickets.adapter = adapter
 
-        // Scroll Infinito
-        rvTickets.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(rv, dx, dy)
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisiblePos = layoutManager.findFirstVisibleItemPosition()
-
-                if (!isLoading && (visibleItemCount + firstVisiblePos) >= totalItemCount && firstVisiblePos >= 0) {
-                    currentPage++
-                    loadTickets()
-                }
-            }
-        })
-
-        loadTickets()
+        val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
+        btnBack.setOnClickListener { findNavController().popBackStack() }
     }
 
-    private fun loadTickets() {
-        isLoading = true
-        view?.findViewById<View>(R.id.progressBarTickets)?.visibility = View.VISIBLE
+    override fun onResume() {
+        super.onResume()
+        loadTicketsFromMockData()
+    }
 
-        // SIMULACIÓN DE API (Borrar al conectar)
-        android.os.Handler().postDelayed({
-            isLoading = false
-            view?.findViewById<View>(R.id.progressBarTickets)?.visibility = View.GONE
-
-            // Datos de ejemplo para probar que la lista funciona
-            val mockTickets = listOf(
-                TicketSummary(1, "T-001", "Pardos Chicken", 55.0, "Entregado", "2024-05-20"),
-                TicketSummary(2, "T-002", "Tanta", 89.5, "En camino", "2024-05-21"),
-                TicketSummary(3, "T-003", "Starbucks", 25.0, "Pendiente", "2024-05-21")
-            )
-            adapter.addList(mockTickets)
-
-        }, 1500)
+    private fun loadTicketsFromMockData() {
+        adapter.clear()
+        // --- LLAMADA A MOCKDATA ---
+        val tickets = MockData.getMyTickets()
+        
+        if (tickets.isEmpty()) {
+            rvTickets.visibility = View.GONE
+            tvNoTickets.visibility = View.VISIBLE
+        } else {
+            rvTickets.visibility = View.VISIBLE
+            tvNoTickets.visibility = View.GONE
+            adapter.addList(tickets)
+        }
     }
 }
