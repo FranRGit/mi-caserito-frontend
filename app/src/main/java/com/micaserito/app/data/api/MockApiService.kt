@@ -47,7 +47,16 @@ class MockApiService : ApiService {
         page: Int
     ): Response<HomeFeedResponse> {
         delay(500) // Búsqueda más rápida
-        return Response.success(MockData.getDiscoverResults(filter))
+
+        val categoryName = categoryId?.toString() // Convertimos el ID a String para el Mock
+
+        return Response.success(
+            MockData.getDiscoverResults(
+                filter = filter,
+                category = categoryName, // Pasamos la categoría (convertida o nula)
+                query = query ?: ""       // Pasamos la query (o string vacío si es nula)
+            )
+        )
     }
 
     override suspend fun getCategories(): Response<List<CategoriaNegocio>> {

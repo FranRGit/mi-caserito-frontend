@@ -16,10 +16,15 @@ import com.micaserito.app.data.model.UserSessionData
 
 object MockData {
 
+    // Permite que los Repositorios obtengan la instancia del MockService
+    fun getMockService(): MockApiService {
+        return MockApiService()
+    }
+
     // --- 1. USUARIO / AUTH ---
     fun getFakeSession() = UserSessionData(
         idUsuario = 10,
-        tipoUsuario = "cliente", // Cambiar a "vendedor" para probar esa vista
+        tipoUsuario = "vendedor", // Cambiar a "vendedor" para probar esa vista
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake.token"
     )
 
@@ -221,14 +226,24 @@ object MockData {
     }
 
     // --- 5. USUARIO (TICKETS & SECURITY) ---
+    // 1. Almacén mutable para tickets (se inicializa con datos de mock)
+    private val _myTickets: MutableList<TicketSummary> = mutableListOf(
+        TicketSummary(101, "ORD-8821", "Bodega Don Pepe", 54.50, "pendiente", "2023-10-25"),
+        TicketSummary(102, "ORD-7743", "Farmacia Salud", 12.00, "completado", "2023-10-20"),
+        TicketSummary(103, "ORD-1120", "Pollería El Sabroso", 89.90, "cancelado", "2023-10-15")
+    )
+
+    // 2. Función de lectura: Devuelve la lista mutable (copia inmutable)
     fun getMyTickets(): List<TicketSummary> {
-        return listOf(
-            TicketSummary(101, "ORD-8821", "Bodega Don Pepe", 54.50, "pendiente", "2023-10-25"),
-            TicketSummary(102, "ORD-7743", "Farmacia Salud", 12.00, "completado", "2023-10-20"),
-            TicketSummary(103, "ORD-1120", "Pollería El Sabroso", 89.90, "cancelado", "2023-10-15")
-        )
+        return _myTickets.toList()
     }
 
+    // 3. NUEVA FUNCIÓN: Permite agregar un nuevo ticket a la lista (soluciona el error)
+    fun addMyTicket(ticket: TicketSummary) {
+        // Agregamos el nuevo ticket al inicio de la lista (simulando los más recientes)
+        _myTickets.add(0, ticket)
+        println("DEBUG: Nuevo Ticket Añadido: ${ticket.codigoTicket}")
+    }
     fun getReports(tipo: String): List<ReportSummary> {
         if (tipo == "sent") {
             return listOf(
