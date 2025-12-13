@@ -10,7 +10,6 @@ import com.micaserito.app.R
 import com.micaserito.app.data.model.FeedItem
 import com.micaserito.app.ui.Viewholders.PostCardViewHolder
 import com.micaserito.app.ui.Viewholders.ProductCardViewHolder
-import com.micaserito.app.data.model.ItemDetails
 
 // ACEPTAMOS LA ARQUITECTURA MODERNA: ListAdapter y DiffUtil
 class HomeFeedAdapter : ListAdapter<FeedItem, RecyclerView.ViewHolder>(FeedItemDiffCallback()) {

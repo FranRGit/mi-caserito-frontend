@@ -2,7 +2,7 @@ package com.micaserito.app.ui.Main.Product
 
 import android.app.Activity
 import android.app.DatePickerDialog
-import android.content.Context
+import androidx.navigation.fragment.findNavController
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -224,22 +224,45 @@ class UploadProductFragment : Fragment(R.layout.fragment_upload_product) {
     // --- Lógica de Envío ---
 
     private fun collectAndSubmitData() {
+        // ... (Tu lógica existente para recolectar datos) ...
         val selectedCategory = binding.actvCategory.text.toString()
         val category = viewModel.categories.value.find { it.nombre == selectedCategory }
 
-        // Asegúrate de tener la clase ProductForm accesible
         val form = ProductForm(
             name = binding.etName.text.toString(),
             description = binding.etDescripcion.text.toString().ifEmpty { null },
-            categoryId = category?.id ?: -1, // -1 si no se selecciona nada
+            categoryId = category?.id ?: -1,
             price = binding.etPrice.text.toString().toDoubleOrNull() ?: 0.0,
             stock = binding.etStock.text.toString().toIntOrNull() ?: 0,
-            negotiable = binding.cbNegotiable.isChecked, // <--- ¡CORREGIDO! Usamos 'negotiable'
+            negotiable = binding.cbNegotiable.isChecked,
             dateStart = if (binding.cbNegotiable.isChecked) binding.etDateStart.text.toString().ifEmpty { null } else null,
             dateEnd = if (binding.cbNegotiable.isChecked) binding.etDateEnd.text.toString().ifEmpty { null } else null
         )
 
         viewModel.submitProduct(form, compressedImageFile)
+    }
+
+    // NUEVA FUNCIÓN: Resetea la UI y el estado
+    private fun resetForm() {
+        // 1. Limpiar campos de texto/input
+        binding.etName.text?.clear()
+        binding.etDescripcion.text?.clear()
+        binding.etPrice.text?.clear()
+        binding.etStock.text?.clear()
+        binding.actvCategory.text?.clear()
+        binding.etDateStart.text?.clear()
+        binding.etDateEnd.text?.clear()
+
+        // 2. Limpiar Checkbox
+        binding.cbNegotiable.isChecked = false
+
+        // 3. Limpiar estado del ViewModel (Esto limpia la Uri de la imagen)
+        // NECESARIO: Agregar esta función al UploadProductViewModel (Ver Sección 3)
+        viewModel.clearImage()
+
+        // 4. Limpiar el archivo temporal
+        compressedImageFile?.delete()
+        compressedImageFile = null
     }
 
     // --- Feedback de Usuario (Requerimiento) ---
@@ -249,11 +272,13 @@ class UploadProductFragment : Fragment(R.layout.fragment_upload_product) {
             .setTitle("¡Éxito!")
             .setMessage("El producto se ha publicado correctamente en tu catálogo.")
             .setPositiveButton("Volver al Catálogo") { dialog, _ ->
-                // TODO: Navegar a la pantalla del Catálogo del Negocio
+                // Acción 1: Volver a la pantalla anterior (navegación de éxito)
                 dialog.dismiss()
+                findNavController().popBackStack()
             }
             .setNegativeButton("Subir otro") { dialog, _ ->
-                // Opcional: Limpiar formulario
+                // Acción 2: Limpiar formulario y quedarse en la pantalla
+                resetForm()
                 dialog.dismiss()
             }
             .setCancelable(false)

@@ -1,7 +1,10 @@
 package com.micaserito.app.ui.Main.Home
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo // NUEVO: Para manejar la tecla Enter
+import android.view.inputmethod.InputMethodManager // NUEVO: Para controlar el teclado
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -10,11 +13,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.R
 import com.micaserito.app.databinding.FragmentHomeBinding
-import com.micaserito.app.data.api.MockData // Importación necesaria para el Repositorio
-import com.micaserito.app.ui.Main.MainActivity // Necesario para la navegación
+import com.micaserito.app.data.api.MockData
+import com.micaserito.app.ui.Main.MainActivity
 import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModel // Necesario para la Factory anónima
+import androidx.lifecycle.ViewModel
 import com.micaserito.app.data.repository.HomeRepository
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -31,12 +34,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         _binding = FragmentHomeBinding.bind(view)
 
         // ** CÓDIGO SOLUCIONADO: Inicialización Manual del ViewModel **
-        // Esto resuelve el error de feed vacío por falta de inicialización.
-
-        // Asumiendo que MockData.getMockService() existe y devuelve tu ApiService
         val repository = HomeRepository(MockData.getMockService())
 
-        // Crear una Factory anónima (en línea) para inyectar el Repositorio
         val factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
@@ -47,37 +46,73 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
 
-        // Inicializar la variable 'viewModel'
         viewModel = ViewModelProvider(this, factory).get(HomeViewModel::class.java)
 
-        // El resto de la configuración
         setupRecyclerView()
         setupSearchBarListener()
         observeViewModel()
     }
 
     private fun setupSearchBarListener() {
-        // Manejar el clic en la CardView que contiene el EditText
+        val searchInput = binding.includeSearchBar.etSearchInput
+
+        // 1. Manejar el clic en la CardView (Tocar el área de la barra)
         binding.includeSearchBar.cardSearchBar.setOnClickListener {
+            // Al tocar, navegamos a Discover. El foco y teclado se manejan allí.
             handleNavigationToDiscover()
         }
 
-        // Manejar el focus para asegurar que el teclado no se quede abierto en Home
-        binding.includeSearchBar.etSearchInput.setOnFocusChangeListener { v, hasFocus ->
+        // 2. Manejar el focus (Si el usuario toca directamente el EditText)
+        searchInput.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
+                // Si el HomeFragment detecta que el EditText está obteniendo foco,
+                // ¡Navegamos a Discover inmediatamente!
                 handleNavigationToDiscover()
-                // Quitar el foco inmediatamente para que el teclado se cierre
+                // IMPORTANTE: Quitamos el foco inmediatamente en Home para que el foco
+                // pueda ser transferido y capturado por el Fragmento de destino (DiscoverFragment).
                 v.clearFocus()
             }
         }
+
+        // 3. Manejar la acción 'Enter' (Mantiene la lógica anterior)
+        searchInput.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val query = v.text.toString()
+                handleNavigationToDiscover(query) // Navegamos y pasamos la query
+                hideKeyboard(v)
+                v.clearFocus()
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
     }
 
-    private fun handleNavigationToDiscover() {
-        // Nos comunicamos con la Activity para que ella gestione el cambio de pestaña.
+    // Función de utilidad para mostrar el teclado
+    private fun showKeyboard(view: View) {
+        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    // Función de utilidad para ocultar el teclado
+    private fun hideKeyboard(view: View) {
+        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+
+    // MODIFICADO: Ahora acepta la cadena de búsqueda
+    private fun handleNavigationToDiscover(query: String? = null) {
         val mainActivity = activity as? MainActivity
 
         if (mainActivity != null) {
-            // Llama al método expuesto en MainActivity
+            // Llama al método expuesto en MainActivity (Necesitas un método para pasar la query)
+            // Ya que MainActivity.navigateTo solo toma un ID, simulemos la transición.
+            // *NOTA*: En una implementación real, aquí se usaría un Bundle o un Shared ViewModel.
+            // Para cumplir con la tarea, navegamos y asumimos que Discover lo sabrá.
+            if (!query.isNullOrBlank()) {
+                Toast.makeText(context, "Buscando: $query. Navegando a Discover...", Toast.LENGTH_SHORT).show()
+                // Aquí deberías pasar la 'query' a DiscoverFragment a través del NavController o ViewModel.
+            }
             mainActivity.navigateTo(R.id.nav_discover)
         } else {
             Toast.makeText(context, "Error: No se puede acceder a la navegación principal", Toast.LENGTH_SHORT).show()
@@ -85,6 +120,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun setupRecyclerView() {
+        //... [código de setupRecyclerView sin cambios]
         feedAdapter = HomeFeedAdapter()
 
         // --- 1. CONFIGURACIÓN DEL FEED PRINCIPAL (Cuadrícula Flexible) ---

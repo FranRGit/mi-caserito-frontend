@@ -19,7 +19,7 @@ object MockData {
     // --- 1. USUARIO / AUTH ---
     fun getFakeSession() = UserSessionData(
         idUsuario = 10,
-        tipoUsuario = "cliente", // Cambiar a "vendedor" para probar esa vista
+        tipoUsuario = "vendedor", // Cambiar a "vendedor" para probar esa vista
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake.token"
     )
 

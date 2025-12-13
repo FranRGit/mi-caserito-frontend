@@ -56,7 +56,9 @@ class UploadProductViewModel(
     fun setImageUri(uri: String) {
         _imageUri.value = uri
     }
-
+    fun clearImage() {
+        _imageUri.value = null
+    }
     /**
      * Valida y prepara los datos para el envío Multipart/Form-Data.
      * @param form: Data class simple con todos los campos del formulario.
