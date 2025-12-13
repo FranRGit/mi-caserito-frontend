@@ -1,91 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:strokeWidth="0dp"
-    app:cardBackgroundColor="#F2F2F7">
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/bg_card_report"
+    android:padding="16dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/imgReportIcon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@android:drawable/ic_dialog_info" />
+
+    <TextView
+        android:id="@+id/tvReportType"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:layout_marginTop="4dp"
+        android:textColor="#333333"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imgReportIcon"
+        app:layout_constraintStart_toStartOf="@+id/imgReportIcon"
+        app:layout_constraintTop_toBottomOf="@id/imgReportIcon"
+        tools:text="Problema" />
 
-        <!-- Icon Area -->
-        <ImageView
-            android:id="@+id/ivReportIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@android:drawable/ic_dialog_alert" />
+    <TextView
+        android:id="@+id/tvReportTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/tvStatusBadge"
+        app:layout_constraintStart_toEndOf="@+id/imgReportIcon"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Lorem ipsum dolor sit amet." />
 
-        <TextView
-            android:id="@+id/tvReportType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            app:layout_constraintTop_toBottomOf="@+id/ivReportIcon"
-            app:layout_constraintStart_toStartOf="@id/ivReportIcon"
-            app:layout_constraintEnd_toEndOf="@+id/ivReportIcon"
-            tools:text="Problema" />
+    <TextView
+        android:id="@+id/tvReportSubtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="#666666"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="@+id/tvReportTitle"
+        app:layout_constraintStart_toStartOf="@+id/tvReportTitle"
+        app:layout_constraintTop_toBottomOf="@+id/tvReportTitle"
+        tools:text="Contra: Lorem Ipsum" />
 
-        <!-- Text Content Area -->
-        <TextView
-            android:id="@+id/txtReportTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivReportIcon"
-            app:layout_constraintEnd_toStartOf="@+id/txtReportStatus"
-            tools:text="Lorem ipsum dolor sit amet." />
+    <TextView
+        android:id="@+id/tvStatusBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_status_badge"
+        android:paddingStart="12dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="4dp"
+        android:textColor="#9E9E9E"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Pendiente" />
 
-        <TextView
-            android:id="@+id/tvReportSubtitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:layout_constraintTop_toBottomOf="@+id/txtReportTitle"
-            app:layout_constraintStart_toStartOf="@+id/txtReportTitle"
-            app:layout_constraintEnd_toEndOf="@+id/txtReportTitle"
-            tools:text="Contra: Lorem Ipsum" />
+    <TextView
+        android:id="@+id/tvReportDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="#9E9E9E"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvStatusBadge"
+        tools:text="12 Oct 2025" />
 
-        <!-- Status Area -->
-        <TextView
-            android:id="@+id/txtReportStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/circle_bg_gray"
-            android:paddingStart="12dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="4dp"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Pendiente" />
-
-        <TextView
-            android:id="@+id/txtReportDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="12sp"
-            app:layout_constraintTop_toBottomOf="@+id/txtReportStatus"
-            app:layout_constraintEnd_toEndOf="@id/txtReportStatus"
-            tools:text="12 Oct 2025" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
