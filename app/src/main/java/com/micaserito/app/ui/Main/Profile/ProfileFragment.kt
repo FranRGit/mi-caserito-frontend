@@ -1,26 +1,44 @@
 package com.micaserito.app.ui.Main.Profile
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.PopupMenu
+import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.micaserito.app.R
-import com.micaserito.app.ui.Auth.AuthActivity
-import com.micaserito.app.ui.Extra.Security.SecurityActivity
-import com.micaserito.app.ui.Extra.Ticket.TicketActivity
+import com.micaserito.app.data.api.MockData
+import com.micaserito.app.ui.Main.Profile.adapters.ProfilePagerAdapter
 
 class ProfileFragment : Fragment() {
 
+    private val viewModel: ProfileViewModel by viewModels()
+
+    private lateinit var ivProfileImage: ImageView
+    private lateinit var tvProfileName: TextView
+    private lateinit var tvProfileDescription: TextView
+    private lateinit var tvCategory: TextView
+    private lateinit var tvRating: TextView
+    private lateinit var llStats: LinearLayout
+    private lateinit var tvSalesCount: TextView
+    private lateinit var tvSchedule: TextView
+    private lateinit var ivMenuOptions: ImageView
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: ViewPager2
+
+    private var tipoUsuario: String = "cliente"
+    private var idNegocio: Int = 0
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
@@ -29,62 +47,98 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Configurar el ViewPager y TabLayout (Las Pestañas)
-        val tabLayout = view.findViewById<TabLayout>(R.id.tabLayout)
-        val viewPager = view.findViewById<ViewPager2>(R.id.viewPager)
+        initViews(view)
 
-        // Conectar el adaptador que creamos
-        val adapter = ProfileStateAdapter(this)
+        val sessionData = MockData.getFakeSession()
+        tipoUsuario = sessionData.tipoUsuario
+        idNegocio = sessionData.idUsuario
+
+        if (tipoUsuario == "vendedor") {
+            setupVendedorProfile()
+        } else {
+            setupClienteProfile()
+        }
+
+        setupMenuOptions()
+        observeViewModel()
+    }
+
+    private fun initViews(view: View) {
+        ivProfileImage = view.findViewById(R.id.ivProfileImage)
+        tvProfileName = view.findViewById(R.id.tvProfileName)
+        tvProfileDescription = view.findViewById(R.id.tvProfileDescription)
+        tvCategory = view.findViewById(R.id.tvCategory)
+        tvRating = view.findViewById(R.id.tvRating)
+        llStats = view.findViewById(R.id.llStats)
+        tvSalesCount = view.findViewById(R.id.tvSalesCount)
+        tvSchedule = view.findViewById(R.id.tvSchedule)
+        ivMenuOptions = view.findViewById(R.id.ivMenuOptions)
+        tabLayout = view.findViewById(R.id.tabLayout)
+        viewPager = view.findViewById(R.id.viewPager)
+    }
+
+    private fun setupVendedorProfile() {
+        llStats.visibility = View.VISIBLE
+        viewModel.loadBusinessInfo(idNegocio)
+
+        val adapter = ProfilePagerAdapter(this, isVendedor = true, idNegocio = idNegocio)
         viewPager.adapter = adapter
 
-        // Sincronizar las pestañas con el contenido
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            when (position) {
-                0 -> tab.text = "Publicaciones"
-                1 -> tab.text = "Catálogo"
-            }
+            tab.text = if (position == 0) "Publicaciones" else "Catálogo"
         }.attach()
+    }
 
-        // 2. Configurar Datos del Usuario (Simulado por ahora)
-        val tvName = view.findViewById<TextView>(R.id.tvProfileName)
-        tvName.text = "Bryan Developer" // Tu nombre aquí
+    private fun setupClienteProfile() {
+        llStats.visibility = View.GONE
+        tvProfileName.text = "Usuario Cliente"
+        tvProfileDescription.text = "Miembro de Mi Caserito"
+        tvCategory.text = "Cliente"
+        tvRating.text = "5.0"
 
-        // 3. Configurar el Botón de Ajustes (Para cumplir con Tickets y Seguridad)
-        // NOTA: Este ID 'ivSettings' debe existir en profile_header.xml (Paso 3)
-        val btnSettings = view.findViewById<ImageView>(R.id.ivSettings)
+        val adapter = ProfilePagerAdapter(this, isVendedor = false, idNegocio = idNegocio)
+        viewPager.adapter = adapter
 
-        btnSettings.setOnClickListener {
-            showPopupMenu(it)
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = if (position == 0) "Publicaciones" else "Premium"
+        }.attach()
+    }
+
+    private fun setupMenuOptions() {
+        ivMenuOptions.setOnClickListener {
+            val popup = android.widget.PopupMenu(requireContext(), ivMenuOptions)
+            popup.menuInflater.inflate(R.menu.profile_menu, popup.menu)
+
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.menu_tickets -> {
+                        Toast.makeText(requireContext(), "Ir a Mis Tickets", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.menu_security -> {
+                        Toast.makeText(requireContext(), "Ir a Centro de Seguridad", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.menu_logout -> {
+                        Toast.makeText(requireContext(), "Cerrando sesión...", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            popup.show()
         }
     }
 
-    // Función para mostrar el menú flotante con tus opciones requeridas
-    private fun showPopupMenu(view: View) {
-        val popup = PopupMenu(requireContext(), view)
-        // Agregamos las opciones directamente en código para no crear más XMLs por ahora
-        popup.menu.add(0, 1, 0, "Mis Tickets / Pedidos")
-        popup.menu.add(0, 2, 0, "Seguridad y Privacidad")
-        popup.menu.add(0, 3, 0, "Cerrar Sesión")
-
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                1 -> { // Ir a Tickets
-                    startActivity(Intent(requireContext(), TicketActivity::class.java))
-                    true
-                }
-                2 -> { // Ir a Seguridad
-                    startActivity(Intent(requireContext(), SecurityActivity::class.java))
-                    true
-                }
-                3 -> { // Cerrar Sesión
-                    val intent = Intent(requireContext(), AuthActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    true
-                }
-                else -> false
-            }
+    private fun observeViewModel() {
+        viewModel.businessInfo.observe(viewLifecycleOwner) { negocio ->
+            tvProfileName.text = negocio.nombreNegocio
+            tvProfileDescription.text = negocio.descripcion ?: ""
+            tvCategory.text = negocio.rubro ?: "Negocio"
+            tvRating.text = String.format("%.1f", negocio.calificacionPromedio)
+            tvSalesCount.text = "${negocio.ventasTotales} Ventas Mensuales"
+            tvSchedule.text = negocio.horarioResumen ?: "Lun-Dom"
         }
-        popup.show()
     }
 }

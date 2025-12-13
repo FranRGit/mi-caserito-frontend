@@ -25,19 +25,40 @@
             android:src="@color/secondary_color" />
     </androidx.cardview.widget.CardView>
 
-    <!-- Nombre del Negocio/Usuario -->
-    <TextView
-        android:id="@+id/tvProfileName"
+    <!-- Contenedor: Nombre + Menú -->
+    <LinearLayout
+        android:id="@+id/llNameMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="Lorem Ipsum"
-        android:textColor="@android:color/black"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/cvProfileImage"
-        app:layout_constraintTop_toTopOf="@id/cvProfileImage" />
+        app:layout_constraintTop_toTopOf="@id/cvProfileImage">
+
+        <!-- Nombre del Negocio/Usuario -->
+        <TextView
+            android:id="@+id/tvProfileName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Lorem Ipsum"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Menú de opciones (3 líneas) -->
+        <ImageView
+            android:id="@+id/ivMenuOptions"
+            android:layout_width="20sp"
+            android:layout_height="20sp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_more"
+            app:tint="#616161"
+            android:contentDescription="Menú de opciones" />
+
+    </LinearLayout>
 
     <!-- Descripción -->
     <TextView
@@ -45,14 +66,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, in sit."
+        android:text="Lorem ipsum dolor sit amet"
         android:textColor="#757575"
         android:textSize="14sp"
         android:maxLines="2"
         android:ellipsize="end"
-        app:layout_constraintEnd_toEndOf="@id/tvProfileName"
-        app:layout_constraintStart_toStartOf="@id/tvProfileName"
-        app:layout_constraintTop_toBottomOf="@id/tvProfileName" />
+        app:layout_constraintEnd_toEndOf="@id/llNameMenu"
+        app:layout_constraintStart_toStartOf="@id/llNameMenu"
+        app:layout_constraintTop_toBottomOf="@id/llNameMenu" />
 
     <!-- Contenedor de Categoría y Rating -->
     <LinearLayout
@@ -149,12 +170,5 @@
                 android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
-    <ImageView
-        android:id="@+id/ivSettings"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/ic_more"
-        app:tint="@android:color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
