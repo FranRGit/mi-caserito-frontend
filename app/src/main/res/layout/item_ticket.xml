@@ -8,8 +8,8 @@
     android:layout_marginEnd="16dp"
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
     app:strokeWidth="0dp"
     app:cardBackgroundColor="#F2F2F7">
 
@@ -20,26 +20,30 @@
 
         <!-- Icon Area -->
         <ImageView
-            android:id="@+id/ivReportIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:id="@+id/ivTicketIcon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@android:drawable/ic_dialog_alert" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:src="@android:drawable/ic_menu_agenda" 
+            app:tint="#34C759"/>
 
         <TextView
-            android:id="@+id/tvReportType"
+            android:id="@+id/tvTicketCode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            app:layout_constraintTop_toBottomOf="@+id/ivReportIcon"
-            app:layout_constraintStart_toStartOf="@id/ivReportIcon"
-            app:layout_constraintEnd_toEndOf="@+id/ivReportIcon"
-            tools:text="Problema" />
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@id/ivTicketIcon"
+            app:layout_constraintStart_toStartOf="@id/ivTicketIcon"
+            app:layout_constraintEnd_toEndOf="@+id/ivTicketIcon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="82391" />
 
         <!-- Text Content Area -->
         <TextView
-            android:id="@+id/txtReportTitle"
+            android:id="@+id/tvTicketTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -47,26 +51,26 @@
             android:textStyle="bold"
             android:textColor="@android:color/black"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivReportIcon"
-            app:layout_constraintEnd_toStartOf="@+id/txtReportStatus"
+            app:layout_constraintStart_toEndOf="@id/ivTicketIcon"
+            app:layout_constraintEnd_toStartOf="@+id/tvTicketStatus"
             tools:text="Lorem ipsum dolor sit amet." />
 
         <TextView
-            android:id="@+id/tvReportSubtitle"
+            android:id="@+id/tvTicketTotal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            app:layout_constraintTop_toBottomOf="@+id/txtReportTitle"
-            app:layout_constraintStart_toStartOf="@+id/txtReportTitle"
-            app:layout_constraintEnd_toEndOf="@+id/txtReportTitle"
-            tools:text="Contra: Lorem Ipsum" />
+            app:layout_constraintTop_toBottomOf="@+id/tvTicketTitle"
+            app:layout_constraintStart_toStartOf="@+id/tvTicketTitle"
+            app:layout_constraintEnd_toEndOf="@+id/tvTicketTitle"
+            tools:text="Total: S/. 99.99" />
 
         <!-- Status Area -->
         <TextView
-            android:id="@+id/txtReportStatus"
+            android:id="@+id/tvTicketStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/circle_bg_gray"
+            android:background="@drawable/bg_status_pill"
             android:paddingStart="12dp"
             android:paddingTop="4dp"
             android:paddingEnd="12dp"
@@ -75,16 +79,16 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Pendiente" />
+            tools:text="Negociando" />
 
         <TextView
-            android:id="@+id/txtReportDate"
+            android:id="@+id/tvTicketDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textSize="12sp"
-            app:layout_constraintTop_toBottomOf="@+id/txtReportStatus"
-            app:layout_constraintEnd_toEndOf="@id/txtReportStatus"
+            app:layout_constraintTop_toBottomOf="@+id/tvTicketStatus"
+            app:layout_constraintEnd_toEndOf="@id/tvTicketStatus"
             tools:text="12 Oct 2025" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

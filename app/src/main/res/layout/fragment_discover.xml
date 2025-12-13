@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
+    <!-- Barra de Búsqueda y Botón de Tickets -->
     <EditText
         android:id="@+id/searchBar"
         android:layout_width="0dp"
@@ -17,6 +18,8 @@
         android:drawableStart="@android:drawable/ic_menu_search"
         android:drawablePadding="8dp"
         android:hint="Buscar negocios o productos..."
+        android:inputType="text"
+        android:imeOptions="actionSearch"
         android:paddingStart="16dp"
         app:layout_constraintEnd_toStartOf="@+id/btnTickets"
         app:layout_constraintHorizontal_bias="0.0"
@@ -26,41 +29,32 @@
     <ImageButton
         android:id="@+id/btnTickets"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginEnd="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Ver mis tickets de compra"
-        android:src="@android:drawable/ic_dialog_info" 
+        android:padding="8dp"
+        android:src="@android:drawable/ic_dialog_info"
         app:layout_constraintBottom_toBottomOf="@+id/searchBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/searchBar" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCategories"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/searchBar"
-        tools:listitem="@layout/item_product_card" />
-
+    <!-- Filtros de Chips -->
     <HorizontalScrollView
         android:id="@+id/scrollChips"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="16dp"
+        android:layout_marginTop="12dp"
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/rvCategories">
+        app:layout_constraintTop_toBottomOf="@+id/searchBar">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupFilter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true">
+            app:selectionRequired="true"
+            app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipTodo"
@@ -86,6 +80,23 @@
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
+    <!-- Carrusel de Categorías (POSICIÓN CORREGIDA) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCategories"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollChips"
+        tools:layout_height="80dp" />
+
+    <!-- Lista Principal -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDiscoverFeed"
         android:layout_width="match_parent"
@@ -93,7 +104,7 @@
         android:clipToPadding="false"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scrollChips"
+        app:layout_constraintTop_toBottomOf="@+id/rvCategories"
         tools:listitem="@layout/item_product_card" />
 
     <ProgressBar

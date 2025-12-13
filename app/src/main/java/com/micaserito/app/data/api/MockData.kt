@@ -19,7 +19,7 @@ object MockData {
     // --- 1. USUARIO / AUTH ---
     fun getFakeSession() = UserSessionData(
         idUsuario = 10,
-        tipoUsuario = "vendedor", // Cambiar a "vendedor" para probar esa vista
+        tipoUsuario = "cliente", // Cambiar a "vendedor" para probar esa vista
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake.token"
     )
 
@@ -92,8 +92,10 @@ object MockData {
         )
     }
 
-    fun getDiscoverResults(filter: String): HomeFeedResponse {
-        // Reutilizamos items para simular búsqueda
+    // FUNCIÓN para manejar los filtros de tipo, categoría y búsqueda.
+    fun getDiscoverResults(filter: String, category: String?, query: String = ""): HomeFeedResponse {
+
+        // 1. Definición del item de negocio base (movido de la función auxiliar)
         val negocioItem = FeedItem(
             type = "business",
             details = ItemDetails(
@@ -106,12 +108,33 @@ object MockData {
             )
         )
 
-        val listaItems = when (filter) {
+        // Obtener un producto de ejemplo (reutilizando getHomeFeed() de forma segura)
+        val productoItem = getHomeFeed().data.sections?.get(0)?.items?.get(0)
+            ?: negocioItem // Fallback al negocio si el producto no existe en el feed
+
+        var listaItems: List<FeedItem> = emptyList()
+
+        // 2. Lógica base: Filtrar por tipo (todo, business, product)
+        listaItems = when (filter) {
             "business" -> listOf(negocioItem, negocioItem)
-            "product" -> listOf(getHomeFeed().data.sections!![0].items[0])
-            else -> listOf(negocioItem, getHomeFeed().data.sections!![0].items[0]) // Mixto
+            "product" -> listOf(productoItem, productoItem)
+            else -> listOf(negocioItem, productoItem) // Mixto
         }
 
+        // 3. Lógica Adicional (Simulación de Filtro por Categoría o Búsqueda)
+        // El orden de los 'if' simula que la búsqueda tiene prioridad sobre la categoría.
+
+        if (query.isNotEmpty()) {
+            // SIMULACIÓN: Si hay búsqueda, devolvemos UN producto relevante.
+            println("DEBUG: Aplicando filtro de búsqueda: $query")
+            listaItems = listOf(productoItem)
+        } else if (category != null) {
+            // SIMULACIÓN: Si hay categoría (y no hay búsqueda), devolvemos UN negocio relevante.
+            println("DEBUG: Aplicando filtro de categoría: $category")
+            listaItems = listOf(negocioItem)
+        }
+
+        // 4. Devolver la respuesta
         return HomeFeedResponse(
             status = "success",
             data = FeedData(items = listaItems),
@@ -239,9 +262,5 @@ object MockData {
                 )
             )
         }
-    }
-    // CORRECCIÓN AÑADIDA: Punto de acceso para el HomeFragment
-    fun getMockService(): ApiService {
-        return MockApiService()
     }
 }

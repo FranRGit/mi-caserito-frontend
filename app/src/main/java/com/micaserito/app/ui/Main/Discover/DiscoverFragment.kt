@@ -14,9 +14,6 @@ import com.google.android.material.chip.ChipGroup
 import com.micaserito.app.R
 import com.micaserito.app.data.model.FeedItem
 import com.micaserito.app.data.model.ItemDetails
-import android.view.inputmethod.InputMethodManager
-import android.content.Context
-
 
 class DiscoverFragment : Fragment(R.layout.fragment_discover) {
 
@@ -25,11 +22,6 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
     private var currentPage = 1
     private var currentFilter = "todo" // "todo", "negocios", "productos"
     private var searchQuery = "" // Para la búsqueda
-
-    companion object {
-        // Definición de la clave de argumento para la búsqueda
-        const val ARG_SEARCH_QUERY = "search_query" // Puedes usar cualquier string, pero "search_query" es claro
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,25 +35,6 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
 
         // 2. Configurar Barra de Búsqueda
         val searchBar = view.findViewById<EditText>(R.id.searchBar)
-
-        // **************** CAMBIOS CLAVE AÑADIDOS ****************
-
-        // A. Poner foco y abrir teclado al entrar al Fragmento
-        searchBar.requestFocus()
-        showKeyboard(searchBar)
-
-        // B. Intentar recibir la búsqueda si se navegó desde Home
-        arguments?.getString(ARG_SEARCH_QUERY)?.let { query ->
-            if (query.isNotEmpty()) {
-                searchBar.setText(query)
-                searchQuery = query
-                // Limpiar argumentos para que no se repita la búsqueda
-                arguments?.remove(ARG_SEARCH_QUERY)
-            }
-        }
-
-        // *******************************************************
-
         searchBar.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 searchQuery = v.text.toString()
@@ -106,11 +79,7 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
         // Carga Inicial
         loadData()
     }
-    // Función de utilidad para mostrar el teclado (añadida)
-    private fun showKeyboard(view: View) {
-        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-        imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-    }
+
     private fun resetAndLoad() {
         currentPage = 1
         adapter.clear()

@@ -1,8 +1,11 @@
 package com.micaserito.app.ui.Main.Tickets
 
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.R
@@ -18,10 +21,13 @@ class TicketsAdapter : RecyclerView.Adapter<TicketsAdapter.TicketViewHolder>() {
         notifyItemRangeInserted(start, newTickets.size)
     }
 
+    fun clear() {
+        tickets.clear()
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TicketViewHolder {
-        // Asegúrate de crear un layout simple llamado item_ticket.xml
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_product_card, parent, false)
-        // NOTA: Estoy usando item_product_card temporalmente, lo ideal es crear item_ticket.xml
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_ticket, parent, false)
         return TicketViewHolder(view)
     }
 
@@ -32,14 +38,34 @@ class TicketsAdapter : RecyclerView.Adapter<TicketsAdapter.TicketViewHolder>() {
     override fun getItemCount(): Int = tickets.size
 
     class TicketViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Ajusta estos IDs a tu layout real
-        private val txtBusinessName: TextView = itemView.findViewById(R.id.tv_product_name) // Reutilizando ID
-        private val txtTotal: TextView = itemView.findViewById(R.id.tv_product_price) // Reutilizando ID
+        private val tvCode: TextView = itemView.findViewById(R.id.tvTicketCode)
+        private val tvTitle: TextView = itemView.findViewById(R.id.tvTicketTitle)
+        private val tvTotal: TextView = itemView.findViewById(R.id.tvTicketTotal)
+        private val tvStatus: TextView = itemView.findViewById(R.id.tvTicketStatus)
+        private val tvDate: TextView = itemView.findViewById(R.id.tvTicketDate)
 
         fun bind(ticket: TicketSummary) {
-            // Requisito UI: El título es el nombre del negocio
-            txtBusinessName.text = ticket.titulo
-            txtTotal.text = "Total: S/ ${ticket.total}"
+            tvCode.text = ticket.codigoTicket
+            tvTitle.text = ticket.titulo
+            tvTotal.text = "Total: S/ ${String.format("%.2f", ticket.total)}"
+            tvDate.text = ticket.fecha
+            tvStatus.text = ticket.estado
+
+            // --- Lógica para Colores de Estado ---
+            val statusColor = when (ticket.estado.lowercase()) {
+                "negociando" -> "#8E8E93" // Gris
+                "en proceso" -> "#FF9500" // Naranja
+                "completado" -> "#34C759" // Verde
+                "anulado" -> "#FF3B30"    // Rojo
+                "reportado" -> "#FF3B30"    // Rojo
+                else -> "#8E8E93"
+            }
+
+            val color = Color.parseColor(statusColor)
+            tvStatus.setTextColor(color)
+
+            val drawable = tvStatus.background as GradientDrawable
+            drawable.setStroke(3, color) // 3 es el ancho del borde en píxeles
         }
     }
 }
