@@ -1,7 +1,7 @@
 package com.micaserito.app.ui.Viewholders
 
-import android.animation.AnimatorListenerAdapter
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.graphics.Color
 import android.view.View
 import android.widget.ImageButton
@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.R
 import com.micaserito.app.data.model.ItemDetails
-
 
 class PostCardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -57,20 +56,24 @@ class PostCardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                 // 1. Cambiar a Rojo
                 btnLike.setColorFilter(Color.RED)
 
-                // 2. Animación de "Latido" (Scale Up/Down)
+                // 2. Animación de "Latido" (Scale Up/Down) con listener seguro
                 btnLike.animate()
                     .scaleX(1.2f)
                     .scaleY(1.2f)
-                    .setDuration(100)
+                    .setDuration(180)
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                            btnLike.animate().scaleX(1.0f).scaleY(1.0f).setDuration(100)
+                            btnLike.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(120)
+                                .setListener(null)
                         }
                     })
             } else {
-                // Volver a Gris
+                // Volver a Gris y asegurar escala normal
                 btnLike.setColorFilter(Color.parseColor("#616161"))
+                btnLike.animate().scaleX(1f).scaleY(1f).setDuration(120).setListener(null)
             }
         }
 
