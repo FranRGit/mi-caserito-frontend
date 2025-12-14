@@ -6,25 +6,17 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Barra de Búsqueda y Botón de Tickets -->
-    <EditText
-        android:id="@+id/searchBar"
+    <include
+        android:id="@+id/include_search_bar"
+        layout="@layout/component_search_bar"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:background="@drawable/circle_bg_gray"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:hint="Buscar negocios o productos..."
-        android:inputType="text"
-        android:imeOptions="actionSearch"
-        android:paddingStart="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/btnTickets"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnTickets" />
 
     <ImageButton
         android:id="@+id/btnTickets"
@@ -35,11 +27,10 @@
         android:contentDescription="Ver mis tickets de compra"
         android:padding="8dp"
         android:src="@android:drawable/ic_dialog_info"
-        app:layout_constraintBottom_toBottomOf="@+id/searchBar"
+        app:layout_constraintBottom_toBottomOf="@+id/include_search_bar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/searchBar" />
+        app:layout_constraintTop_toTopOf="@+id/include_search_bar" />
 
-    <!-- Filtros de Chips -->
     <HorizontalScrollView
         android:id="@+id/scrollChips"
         android:layout_width="match_parent"
@@ -47,7 +38,7 @@
         android:paddingStart="16dp"
         android:layout_marginTop="12dp"
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@+id/searchBar">
+        app:layout_constraintTop_toBottomOf="@+id/include_search_bar">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupFilter"
@@ -80,7 +71,6 @@
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <!-- Carrusel de Categorías (POSICIÓN CORREGIDA) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvCategories"
         android:layout_width="0dp"
@@ -96,7 +86,6 @@
         app:layout_constraintTop_toBottomOf="@+id/scrollChips"
         tools:layout_height="80dp" />
 
-    <!-- Lista Principal -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDiscoverFeed"
         android:layout_width="match_parent"

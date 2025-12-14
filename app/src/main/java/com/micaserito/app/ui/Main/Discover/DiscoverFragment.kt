@@ -33,7 +33,23 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
         adapter = DiscoverAdapter()
         rvFeed.adapter = adapter
 
+        // **********************************************
+        // INICIO DE CAMBIOS PARA BUSCADOR RECICLADO
+        // **********************************************
+
+        // 2. RECEPCIÓN DE LA QUERY DE BÚSQUEDA DEL HOME/NAVEGACIÓN
+        arguments?.getString("search_query")?.let { query ->
+            // Si hay una query válida (no en blanco), la aplicamos.
+            if (query.isNotBlank()) {
+                searchQuery = query
+                // Muestra un Toast para confirmar que la búsqueda se aplicó
+                Toast.makeText(context, "Búsqueda inicial: \"$searchQuery\"", Toast.LENGTH_LONG).show()
+            }
+        }
+
         // 2. Configurar Barra de Búsqueda
+        // SE ELIMINA LA LÓGICA DEL EDITTEXT DUPLICADO (R.id.searchBar)
+        /*
         val searchBar = view.findViewById<EditText>(R.id.searchBar)
         searchBar.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -44,8 +60,10 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
                 false
             }
         }
+        */
 
         // 3. Botón de Mis Tickets
+        // Se mantiene la inicialización de btnTickets
         val btnTickets = view.findViewById<ImageButton>(R.id.btnTickets)
         btnTickets.setOnClickListener {
             findNavController().navigate(R.id.nav_tickets)
@@ -59,8 +77,14 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
                 R.id.chipProductos -> "productos"
                 else -> "todo"
             }
+            // AL CAMBIAR EL FILTRO, DEBEMOS RESETEAR LA BÚSQUEDA INICIAL
+            searchQuery = ""
             resetAndLoad()
         }
+
+        // **********************************************
+        // FIN DE CAMBIOS PARA BUSCADOR RECICLADO
+        // **********************************************
 
         // 5. Infinite Scroll
         rvFeed.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -95,6 +119,7 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
             isLoading = false
             view?.findViewById<View>(R.id.progressBarDiscover)?.visibility = View.GONE
 
+            // loadData ahora utiliza el searchQuery actualizado.
             val mockData = createMockData(currentPage, currentFilter, searchQuery)
             if (mockData.isNotEmpty()) {
                 adapter.addList(mockData)

@@ -1,23 +1,23 @@
 package com.micaserito.app.ui.Main.Security
 
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import com.micaserito.app.R
 import com.micaserito.app.data.api.MockData
 
 class SecurityFragment : Fragment(R.layout.fragment_security) {
 
     private lateinit var adapter: ReportsAdapter
-    private lateinit var btnIncidencias: MaterialButton
-    private lateinit var btnSanciones: MaterialButton
+    private lateinit var btnIncidencias: TextView // <-- Corregido: de MaterialButton a TextView
+    private lateinit var btnSanciones: TextView   // <-- Corregido: de MaterialButton a TextView
     private lateinit var layoutManager: LinearLayoutManager
 
     private var isLoading = false
@@ -35,20 +35,12 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
         val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
         btnBack.setOnClickListener { findNavController().popBackStack() }
 
+        // Se buscan como TextView, no como MaterialButton
         btnIncidencias = view.findViewById(R.id.btnIncidencias)
         btnSanciones = view.findViewById(R.id.btnSanciones)
 
         btnIncidencias.setOnClickListener { switchTab(true) }
         btnSanciones.setOnClickListener { switchTab(false) }
-
-        rvReports.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(rv, dx, dy)
-                if (!isLoading && layoutManager.findLastCompletelyVisibleItemPosition() == adapter.itemCount - 1) {
-                    // Lógica de paginación futura
-                }
-            }
-        })
 
         updateTabStyles()
         loadData()
@@ -62,21 +54,19 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
     }
 
     private fun updateTabStyles() {
-        val greenColor = Color.parseColor("#34C759")
-        val whiteColor = Color.WHITE
-
+        // Lógica adaptada para TextViews con fondos drawable
         if (isIncidenciasSelected) {
-            btnIncidencias.backgroundTintList = ColorStateList.valueOf(greenColor)
-            btnIncidencias.setTextColor(whiteColor)
-            btnSanciones.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-            btnSanciones.setTextColor(greenColor)
-            btnSanciones.strokeColor = ColorStateList.valueOf(greenColor)
+            btnIncidencias.setBackgroundResource(R.drawable.bg_tab_selected)
+            btnIncidencias.setTextColor(Color.WHITE)
+
+            btnSanciones.setBackgroundResource(R.drawable.bg_tab_unselected)
+            btnSanciones.setTextColor(Color.BLACK)
         } else {
-            btnIncidencias.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-            btnIncidencias.setTextColor(greenColor)
-            btnIncidencias.strokeColor = ColorStateList.valueOf(greenColor)
-            btnSanciones.backgroundTintList = ColorStateList.valueOf(greenColor)
-            btnSanciones.setTextColor(whiteColor)
+            btnIncidencias.setBackgroundResource(R.drawable.bg_tab_unselected)
+            btnIncidencias.setTextColor(Color.BLACK)
+
+            btnSanciones.setBackgroundResource(R.drawable.bg_tab_selected)
+            btnSanciones.setTextColor(Color.WHITE)
         }
     }
 
@@ -84,12 +74,9 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
         isLoading = true
         adapter.clear()
 
-        android.os.Handler().postDelayed({
-            val reportType = if (isIncidenciasSelected) "sent" else "received"
-            // --- LLAMADA A MOCKDATA ---
-            val reports = MockData.getReports(reportType)
-            adapter.addList(reports)
-            isLoading = false
-        }, 500)
+        val reportType = if (isIncidenciasSelected) "sent" else "received"
+        val reports = MockData.getReports(reportType)
+        adapter.addList(reports)
+        isLoading = false
     }
 }

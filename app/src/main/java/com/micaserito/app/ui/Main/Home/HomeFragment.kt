@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModel
 import com.micaserito.app.data.repository.HomeRepository
+// Nuevo import para la navegación
+import androidx.navigation.fragment.findNavController
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -55,32 +57,38 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun setupSearchBarListener() {
         val searchInput = binding.includeSearchBar.etSearchInput
+        val searchCard = binding.includeSearchBar.cardSearchBar
 
-        // 1. Manejar el clic en la CardView (Tocar el área de la barra)
-        binding.includeSearchBar.cardSearchBar.setOnClickListener {
-            // Al tocar, navegamos a Discover. El foco y teclado se manejan allí.
+        // SOLUCIÓN AL BUG VISUAL: Asegura que el campo esté vacío y el hint correcto.
+        searchInput.setText("")
+        // Aseguramos que el hint sea correcto (aunque ya está en el XML, esto es preventivo)
+        searchInput.hint = "Buscar producto o negocio"
+
+        // 1. Manejar el clic en la CardView (Redirecciona solo si hacen clic en la barra vacía)
+        // El propósito de este listener es actuar como un atajo a Discover si la barra está vacía
+        // o si el usuario quiere dejar de escribir.
+        searchCard.setOnClickListener {
+            // Restauramos el comportamiento: cualquier toque a la CardView redirige a Discover.
             handleNavigationToDiscover()
         }
 
-        // 2. Manejar el focus (Si el usuario toca directamente el EditText)
-        searchInput.setOnFocusChangeListener { v, hasFocus ->
-            if (hasFocus) {
-                // Si el HomeFragment detecta que el EditText está obteniendo foco,
-                // ¡Navegamos a Discover inmediatamente!
-                handleNavigationToDiscover()
-                // IMPORTANTE: Quitamos el foco inmediatamente en Home para que el foco
-                // pueda ser transferido y capturado por el Fragmento de destino (DiscoverFragment).
-                v.clearFocus()
-            }
-        }
 
-        // 3. Manejar la acción 'Enter' (Mantiene la lógica anterior)
+        // 3. Manejar la acción 'Enter' (Buscar) - Lógica de redirección principal
         searchInput.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val query = v.text.toString()
-                handleNavigationToDiscover(query) // Navegamos y pasamos la query
+
+                if (query.isNotBlank()) {
+                    handleNavigationToDiscover(query)
+                } else {
+                    handleNavigationToDiscover()
+                }
+
+                // **SOLUCIÓN 2: OCULTAR TECLADO**
+                // Forzamos el ocultamiento del teclado inmediatamente después de buscar.
                 hideKeyboard(v)
                 v.clearFocus()
+                v.setText("")
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
@@ -100,22 +108,30 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
 
-    // MODIFICADO: Ahora acepta la cadena de búsqueda
+    // MODIFICADO Y CORREGIDO: Usa findNavController() para pasar la query como argumento
     private fun handleNavigationToDiscover(query: String? = null) {
-        val mainActivity = activity as? MainActivity
 
-        if (mainActivity != null) {
-            // Llama al método expuesto en MainActivity (Necesitas un método para pasar la query)
-            // Ya que MainActivity.navigateTo solo toma un ID, simulemos la transición.
-            // *NOTA*: En una implementación real, aquí se usaría un Bundle o un Shared ViewModel.
-            // Para cumplir con la tarea, navegamos y asumimos que Discover lo sabrá.
-            if (!query.isNullOrBlank()) {
-                Toast.makeText(context, "Buscando: $query. Navegando a Discover...", Toast.LENGTH_SHORT).show()
-                // Aquí deberías pasar la 'query' a DiscoverFragment a través del NavController o ViewModel.
+        // 1. Obtener el NavController
+        val navController = findNavController()
+
+        // 2. Crear Bundle si hay query
+        val bundle = if (!query.isNullOrBlank()) {
+            Bundle().apply {
+                // "search_query" debe coincidir con el nombre esperado en DiscoverFragment
+                putString("search_query", query)
             }
-            mainActivity.navigateTo(R.id.nav_discover)
         } else {
-            Toast.makeText(context, "Error: No se puede acceder a la navegación principal", Toast.LENGTH_SHORT).show()
+            null
+        }
+
+        // 3. Navegar a Discover y pasar el Bundle
+        if (navController.currentDestination?.id != R.id.nav_discover) {
+            navController.navigate(R.id.nav_discover, bundle)
+        } else if (bundle != null) {
+            // Si ya estamos en Discover, a veces es necesario resetear los argumentos
+            // o navegar de nuevo. En este caso, solo navegamos si no estamos en el destino,
+            // pero si el usuario presiona Enter, la navegación con el Bundle fuerza la actualización.
+            navController.navigate(R.id.nav_discover, bundle)
         }
     }
 

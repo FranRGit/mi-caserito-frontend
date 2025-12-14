@@ -1,13 +1,12 @@
 package com.micaserito.app.ui.Main.Security
 
-import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.R
 import com.micaserito.app.data.model.ReportSummary
@@ -17,9 +16,8 @@ class ReportsAdapter : RecyclerView.Adapter<ReportsAdapter.ReportViewHolder>() {
     private val reports = mutableListOf<ReportSummary>()
 
     fun addList(newReports: List<ReportSummary>) {
-        val start = reports.size
         reports.addAll(newReports)
-        notifyItemRangeInserted(start, newReports.size)
+        notifyItemRangeInserted(reports.size - newReports.size, newReports.size)
     }
 
     fun clear() {
@@ -39,50 +37,79 @@ class ReportsAdapter : RecyclerView.Adapter<ReportsAdapter.ReportViewHolder>() {
     override fun getItemCount(): Int = reports.size
 
     class ReportViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val ivIcon: ImageView = itemView.findViewById(R.id.ivReportIcon)
-        private val tvType: TextView = itemView.findViewById(R.id.tvReportType)
-        private val tvTitle: TextView = itemView.findViewById(R.id.txtReportTitle)
-        private val tvSubtitle: TextView = itemView.findViewById(R.id.tvReportSubtitle)
-        private val tvStatus: TextView = itemView.findViewById(R.id.txtReportStatus)
-        private val tvDate: TextView = itemView.findViewById(R.id.txtReportDate)
+        // IDs Corregidos para coincidir con item_report.xml
+        private val imgReportIcon: ImageView = itemView.findViewById(R.id.imgReportIcon)
+        private val tvReportType: TextView = itemView.findViewById(R.id.tvReportType)
+        private val tvReportTitle: TextView = itemView.findViewById(R.id.tvReportTitle)
+        private val tvReportSubtitle: TextView = itemView.findViewById(R.id.tvReportSubtitle)
+        private val tvStatusBadge: TextView = itemView.findViewById(R.id.tvStatusBadge)
+        private val tvReportDate: TextView = itemView.findViewById(R.id.tvReportDate)
 
         fun bind(report: ReportSummary) {
-            tvTitle.text = report.titulo
-            tvSubtitle.text = report.usuarioRelacionado
-            tvType.text = report.tipoReporte
-            tvDate.text = report.fecha
-            tvStatus.text = report.estado
+            tvReportTitle.text = report.titulo
+            tvReportSubtitle.text = report.usuarioRelacionado
+            tvReportDate.text = report.fecha
 
-            // --- Lógica para Iconos (CORREGIDO) ---
-            val iconRes = when (report.tipoReporte.lowercase()) {
-                "problema" -> android.R.drawable.ic_dialog_alert
-                "estafa" -> android.R.drawable.ic_delete
-                "entrega" -> android.R.drawable.ic_menu_myplaces
-                "retraso" -> android.R.drawable.ic_menu_recent_history
-                "falta" -> android.R.drawable.ic_dialog_info
-                "advertencia" -> android.R.drawable.ic_dialog_alert
-                "sanción" -> android.R.drawable.ic_delete
-                else -> android.R.drawable.ic_dialog_info
+            // 1. Configurar Icono y Color según el tipo de reporte
+            when (report.tipoReporte.lowercase()) {
+                "problema" -> {
+                    imgReportIcon.setImageResource(android.R.drawable.ic_dialog_alert) // Reemplazar con tu ic_warning
+                    imgReportIcon.setColorFilter(Color.parseColor("#FBC02D")) // Amarillo
+                    tvReportType.text = "Problema"
+                }
+                "estafa" -> {
+                    imgReportIcon.setImageResource(android.R.drawable.ic_notification_clear_all) // Reemplazar con tu ic_block
+                    imgReportIcon.setColorFilter(Color.parseColor("#E53935")) // Rojo
+                    tvReportType.text = "Estafa"
+                }
+                "entrega" -> {
+                    imgReportIcon.setImageResource(android.R.drawable.ic_menu_myplaces) // Reemplazar con tu ic_inventory
+                    imgReportIcon.setColorFilter(Color.parseColor("#3949AB")) // Azul oscuro
+                    tvReportType.text = "Entrega"
+                }
+                "retraso" -> {
+                    imgReportIcon.setImageResource(android.R.drawable.ic_menu_recent_history) // Reemplazar con tu ic_schedule
+                    imgReportIcon.setColorFilter(Color.parseColor("#546E7A")) // Gris azulado
+                    tvReportType.text = "Retraso"
+                }
+                 "falta" -> {
+                    imgReportIcon.setImageResource(android.R.drawable.ic_dialog_info)
+                    imgReportIcon.setColorFilter(Color.parseColor("#8E8E93")) // Gris
+                    tvReportType.text = "Falta"
+                }
+                "advertencia" -> {
+                    imgReportIcon.setImageResource(android.R.drawable.ic_dialog_alert)
+                    imgReportIcon.setColorFilter(Color.parseColor("#FBC02D")) // Amarillo
+                    tvReportType.text = "Advertencia"
+                }
+                "sanción" -> {
+                    imgReportIcon.setImageResource(android.R.drawable.ic_notification_clear_all)
+                    imgReportIcon.setColorFilter(Color.parseColor("#E53935")) // Rojo
+                    tvReportType.text = "Sanción"
+                }
+                else -> {
+                    imgReportIcon.setImageResource(android.R.drawable.ic_dialog_info)
+                    imgReportIcon.setColorFilter(Color.GRAY)
+                    tvReportType.text = report.tipoReporte
+                }
             }
-            ivIcon.setImageResource(iconRes)
 
-            // --- Lógica para Colores de Estado ---
-            val statusColor = when (report.estado.lowercase()) {
-                "pendiente" -> "#E5E5EA"
-                "en revisión" -> "#007AFF"
-                "resuelta" -> "#34C759"
-                "rechazada" -> "#FF3B30"
-                "expirada" -> "#8E8E93"
-                "activa" -> "#34C759"
-                else -> "#E5E5EA"
-            }
-            val statusTextColor = when (report.estado.lowercase()) {
-                "en revisión", "resuelta", "rechazada", "activa" -> Color.WHITE
-                else -> Color.BLACK
+            // 2. Configurar Badge de Estado (Borde y Texto)
+            val background = tvStatusBadge.background.mutate() as GradientDrawable
+            tvStatusBadge.text = report.estado
+
+            val (textColor, borderColor) = when (report.estado.lowercase()) {
+                "pendiente" -> Pair(Color.parseColor("#9E9E9E"), Color.parseColor("#9E9E9E"))
+                "en revisión" -> Pair(Color.parseColor("#007AFF"), Color.parseColor("#007AFF"))
+                "resuelta" -> Pair(Color.parseColor("#34C759"), Color.parseColor("#34C759"))
+                "rechazada" -> Pair(Color.parseColor("#FF3B30"), Color.parseColor("#FF3B30"))
+                "expirada" -> Pair(Color.parseColor("#8E8E93"), Color.parseColor("#8E8E93"))
+                "activa" -> Pair(Color.parseColor("#34C759"), Color.parseColor("#34C759"))
+                else -> Pair(Color.GRAY, Color.GRAY)
             }
 
-            tvStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor(statusColor))
-            tvStatus.setTextColor(statusTextColor)
+            tvStatusBadge.setTextColor(textColor)
+            background.setStroke(3, borderColor)
         }
     }
 }

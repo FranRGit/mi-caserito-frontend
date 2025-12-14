@@ -92,7 +92,7 @@ class MockApiService : ApiService {
 
     override suspend fun getBusinessProducts(id: Int, page: Int): Response<List<ItemDetails>> {
         delay(1000)
-        return Response.success(MockData.getBusinessProducts())
+        return Response.success(MockData.getBusinessProducts(id))
     }
 
     override suspend fun getBusinessPosts(id: Int, page: Int): Response<List<ItemDetails>> {
