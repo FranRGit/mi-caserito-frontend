@@ -1,55 +1,62 @@
-package com.micaserito.app.ui.main.chat
+package com.micaserito.app.ui.Main.Chat
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.micaserito.app.R
 import com.micaserito.app.data.model.ChatSummary
-import com.micaserito.app.databinding.ItemChatPreviewBinding
 
 class ChatAdapter(
-    private val onClick: (ChatSummary) -> Unit = {}
-) : ListAdapter<ChatSummary, ChatAdapter.ChatVH>(DIFF) {
+    private val onChatClicked: (ChatSummary) -> Unit
+) : ListAdapter<ChatSummary, ChatAdapter.ChatViewHolder>(ChatDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatVH {
-        val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemChatPreviewBinding.inflate(inflater, parent, false)
-        return ChatVH(binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_chat_preview, parent, false)
+        return ChatViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ChatVH, position: Int) {
-        holder.bind(getItem(position))
+    override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
+        val chat = getItem(position)
+        holder.bind(chat)
+        holder.itemView.setOnClickListener {
+            onChatClicked(chat)
+        }
     }
 
-    inner class ChatVH(private val b: ItemChatPreviewBinding) : RecyclerView.ViewHolder(b.root) {
-        fun bind(item: ChatSummary) {
-            b.tvName.text = item.nombreParticipante
-            b.tvLastMessage.text = item.ultimoMensaje
-            b.tvDate.text = item.fechaUltimoMensaje
+    inner class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        // IDs asumidos de item_chat_preview.xml
+        private val tvName: TextView = itemView.findViewById(R.id.tvName)
+        private val tvLastMessage: TextView = itemView.findViewById(R.id.tvLastMessage)
+        private val tvUnreadBadge: TextView = itemView.findViewById(R.id.tvUnreadBadge)
+        private val tvDate: TextView = itemView.findViewById(R.id.tvDate)
 
-            // Placeholder para imagen; opcion: Glide/Picasso si lo integras
-            // Glide.with(b.ivProfile).load(item.profileUrl).placeholder(R.drawable.ic_profile).into(b.ivProfile)
+        fun bind(chat: ChatSummary) {
+            tvName.text = chat.nombreParticipante
+            tvLastMessage.text = chat.ultimoMensaje
+            tvDate.text = chat.fechaUltimoMensaje
 
-            if (item.mensajesNoLeidos > 0) {
-                b.tvUnreadBadge.visibility = View.VISIBLE
-                b.tvUnreadBadge.text = item.mensajesNoLeidos.toString()
+            if (chat.mensajesNoLeidos > 0) {
+                tvUnreadBadge.text = chat.mensajesNoLeidos.toString()
+                tvUnreadBadge.visibility = View.VISIBLE
             } else {
-                b.tvUnreadBadge.visibility = View.GONE
+                tvUnreadBadge.visibility = View.GONE
             }
-
-            b.root.setOnClickListener { onClick(item) }
         }
     }
+}
 
-    companion object {
-        private val DIFF = object : DiffUtil.ItemCallback<ChatSummary>() {
-            override fun areItemsTheSame(oldItem: ChatSummary, newItem: ChatSummary): Boolean =
-                oldItem.idChat == newItem.idChat
+class ChatDiffCallback : DiffUtil.ItemCallback<ChatSummary>() {
 
-            override fun areContentsTheSame(oldItem: ChatSummary, newItem: ChatSummary): Boolean =
-                oldItem == newItem
-        }
+    override fun areItemsTheSame(oldItem: ChatSummary, newItem: ChatSummary): Boolean {
+        return oldItem.idChat == newItem.idChat
+    }
+
+    override fun areContentsTheSame(oldItem: ChatSummary, newItem: ChatSummary): Boolean {
+        return oldItem == newItem
     }
 }

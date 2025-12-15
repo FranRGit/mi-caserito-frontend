@@ -1,67 +1,62 @@
-package com.micaserito.app.ui.main.chat
+package com.micaserito.app.ui.Main.Chat
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.micaserito.app.R
 import com.micaserito.app.data.model.ChatMessage
-import com.micaserito.app.databinding.ItemMessageMeBinding
-import com.micaserito.app.databinding.ItemMessageOtherBinding
 
 class MessageAdapter(
-    private val miIdActual: Int
-) : ListAdapter<ChatMessage, RecyclerView.ViewHolder>(DIFF) {
+    private val miIdActual: Int // El ID del usuario que está viendo la pantalla
+) : ListAdapter<ChatMessage, MessageAdapter.MessageViewHolder>(MessageDiffCallback()) {
 
-    companion object {
-        const val VIEW_TYPE_ME = 1
-        const val VIEW_TYPE_OTHER = 2
-
-        private val DIFF = object : DiffUtil.ItemCallback<ChatMessage>() {
-            override fun areItemsTheSame(oldItem: ChatMessage, newItem: ChatMessage): Boolean =
-                oldItem.idMensaje == newItem.idMensaje
-
-            override fun areContentsTheSame(oldItem: ChatMessage, newItem: ChatMessage): Boolean =
-                oldItem == newItem
-        }
-    }
+    private val VIEW_TYPE_ME = 1
+    private val VIEW_TYPE_OTHER = 2
 
     override fun getItemViewType(position: Int): Int {
-        val msg = getItem(position)
-        return if (msg.idUsuario == miIdActual) VIEW_TYPE_ME else VIEW_TYPE_OTHER
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        return if (viewType == VIEW_TYPE_ME) {
-            val b = ItemMessageMeBinding.inflate(inflater, parent, false)
-            MeVH(b)
+        val message = getItem(position)
+        return if (message.idUsuario == miIdActual) {
+            VIEW_TYPE_ME
         } else {
-            val b = ItemMessageOtherBinding.inflate(inflater, parent, false)
-            OtherVH(b)
+            VIEW_TYPE_OTHER
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val msg = getItem(position)
-        when (holder) {
-            is MeVH -> holder.bind(msg)
-            is OtherVH -> holder.bind(msg)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
+        val layoutId = when (viewType) {
+            VIEW_TYPE_ME -> R.layout.item_message_me
+            VIEW_TYPE_OTHER -> R.layout.item_message_other
+            else -> throw IllegalArgumentException("Tipo de vista desconocido: $viewType")
         }
+        val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
+        return MessageViewHolder(view)
     }
 
-    class MeVH(private val b: ItemMessageMeBinding) : RecyclerView.ViewHolder(b.root) {
-        fun bind(m: ChatMessage) {
-            b.tvMessage.text = m.contenido
-            b.tvTime.text = m.fechaEnvio
-        }
+    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    class OtherVH(private val b: ItemMessageOtherBinding) : RecyclerView.ViewHolder(b.root) {
-        fun bind(m: ChatMessage) {
-            b.tvMessage.text = m.contenido
-            b.tvTime.text = m.fechaEnvio
-            // Avatar: usar Glide si quieres cargar imagen en b.ivAvatar
+    inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvMessage: TextView = itemView.findViewById(R.id.tvMessage)
+        private val tvTime: TextView = itemView.findViewById(R.id.tvTime)
+
+        fun bind(message: ChatMessage) {
+            tvMessage.text = message.contenido
+            tvTime.text = message.fechaEnvio
         }
+    }
+}
+
+class MessageDiffCallback : DiffUtil.ItemCallback<ChatMessage>() {
+    override fun areItemsTheSame(oldItem: ChatMessage, newItem: ChatMessage): Boolean {
+        return oldItem.idMensaje == newItem.idMensaje
+    }
+
+    override fun areContentsTheSame(oldItem: ChatMessage, newItem: ChatMessage): Boolean {
+        return oldItem == newItem
     }
 }

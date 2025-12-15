@@ -1,11 +1,10 @@
-package com.micaserito.app.ui.main.chat
+package com.micaserito.app.ui.Main.Chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.micaserito.app.data.api.MockData
 import com.micaserito.app.data.model.ChatMessage
 import com.micaserito.app.data.model.ChatSummary
-import com.micaserito.app.data.repository.ChatRepository
+import com.micaserito.app.data.model.ChatRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -13,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel(
     private val repository: ChatRepository,
-    private val miIdActual: Int = MockData.getFakeSession().idUsuario
+    val miIdActual: Int
 ) : ViewModel() {
 
     private val _chatsState = MutableStateFlow<List<ChatSummary>>(emptyList())
@@ -56,6 +55,7 @@ class ChatViewModel(
         val chatId = currentChatId ?: return onResult(false)
         viewModelScope.launch {
             try {
+                // Mensaje optimista para actualización rápida de la UI
                 val optimistic = ChatMessage(
                     idMensaje = (-System.currentTimeMillis()).toInt(),
                     idUsuario = miIdActual,
@@ -66,10 +66,14 @@ class ChatViewModel(
                 _messagesState.value = _messagesState.value + optimistic
 
                 repository.sendMessage(chatId, content).collect { returned ->
-                    _messagesState.value = (_messagesState.value + returned).distinctBy { it.idMensaje }
+                    // Reemplazar el mensaje optimista con el mensaje confirmado del repo
+                    _messagesState.value = _messagesState.value
+                        .filter { it.idMensaje != optimistic.idMensaje } + returned
                     onResult(true)
                 }
             } catch (e: Exception) {
+                // Eliminar el mensaje optimista si falla el envío
+                _messagesState.value = _messagesState.value.filter { it.idMensaje != (-System.currentTimeMillis()).toInt() }
                 onResult(false)
             }
         }
