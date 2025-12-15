@@ -34,7 +34,7 @@ object MockData {
 
     // Tiene valores por defecto (Vendedor 1) para no romper tus componentes antiguos
     fun getFakeSession(
-        idUsuario: Int = ID_VENDEDOR_1,
+        idUsuario: Int = ID_VENDEDOR_2,
         tipoUsuario: String = "vendedor"
     ): UserSessionData {
         return UserSessionData(
@@ -141,7 +141,11 @@ object MockData {
             .filter { it.type == "product" && it.details.idNegocio == negocioId }
             .map { it.details }
     }
-
+    fun getBusinessPosts(negocioId: Int): List<ItemDetails> {
+        return allItems
+            .filter { it.type == "post" && it.details.idNegocio == negocioId }
+            .map { it.details }
+    }
     // --- UTILIDADES ---
     fun getCategories() = listOf(
         CategoriaNegocio(1, "Bodegas"),

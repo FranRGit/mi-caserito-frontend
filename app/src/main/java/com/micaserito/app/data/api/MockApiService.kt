@@ -96,16 +96,16 @@ class MockApiService : ApiService {
 
     override suspend fun getBusinessProducts(id: Int, page: Int): Response<List<ItemDetails>> {
         delay(1000)
+        // Llama a MockData.getBusinessProducts(id), pasando el ID del negocio
         return Response.success(MockData.getBusinessProducts(id))
     }
 
     override suspend fun getBusinessPosts(id: Int, page: Int): Response<List<ItemDetails>> {
         delay(1000)
-        // Reusamos los mismos del home por ahora
-        val posts = MockData.getHomeFeed().data.sections?.find { it.type == "latest_posts" }?.items?.map { it.details }
-        return Response.success(posts ?: emptyList())
+        // [CÓDIGO CORREGIDO] Ahora llama a la función de MockData y pasa el 'id'
+        val posts = MockData.getBusinessPosts(id)
+        return Response.success(posts)
     }
-
     // ================= CHAT =================
     override suspend fun getChats(filter: String): Response<List<ChatSummary>> {
         delay(NETWORK_DELAY)

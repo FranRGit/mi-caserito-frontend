@@ -1,5 +1,5 @@
 package com.micaserito.app.ui.Main.Profile
-
+import com.micaserito.app.data.Local.SessionManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -49,13 +49,24 @@ class ProfileFragment : Fragment() {
 
         initViews(view)
 
-        val sessionData = MockData.getFakeSession()
-        tipoUsuario = sessionData.tipoUsuario
-        idNegocio = sessionData.idUsuario
+        // 🚨 CAMBIO CLAVE: Usar SessionManager para obtener los datos REALES
+        val currentUserId = SessionManager.getUserId(requireContext())
+        tipoUsuario = SessionManager.getUserType(requireContext())
 
+        // 🚨 LÓGICA DE MAPEO (el mapeo aún usa MockData para la lógica del ID de negocio)
         if (tipoUsuario == "vendedor") {
+            // Si es vendedor, usamos el ID del usuario actual para encontrar el ID de su negocio asociado.
+            val negocioId = MockData.getBusinessIdByUserId(currentUserId)
+            idNegocio = negocioId ?: 0
+
+            if (idNegocio == 0) {
+                Toast.makeText(requireContext(), "Error: ID de negocio no encontrado para el vendedor.", Toast.LENGTH_LONG).show()
+            }
+
             setupVendedorProfile()
         } else {
+            // Si es cliente, usamos su ID de usuario.
+            idNegocio = currentUserId
             setupClienteProfile()
         }
 
@@ -79,6 +90,8 @@ class ProfileFragment : Fragment() {
 
     private fun setupVendedorProfile() {
         llStats.visibility = View.VISIBLE
+
+        // El idNegocio ya tiene el valor correcto (ej. 200)
         viewModel.loadBusinessInfo(idNegocio)
 
         val adapter = ProfilePagerAdapter(this, isVendedor = true, idNegocio = idNegocio)
@@ -96,6 +109,8 @@ class ProfileFragment : Fragment() {
         tvCategory.text = "Cliente"
         tvRating.text = "5.0"
 
+        // El idNegocio ahora es el idUsuario, pero como no se usa para cargar publicaciones
+        // de un cliente en este flujo, no afecta el comportamiento.
         val adapter = ProfilePagerAdapter(this, isVendedor = false, idNegocio = idNegocio)
         viewPager.adapter = adapter
 

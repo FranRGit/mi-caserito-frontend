@@ -1,5 +1,5 @@
 package com.micaserito.app.ui.Main
-
+import com.micaserito.app.data.Local.SessionManager
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -18,8 +18,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var tvTitle: TextView
 
-    // 1. Simulación del tipo de usuario (Vendedor o Comprador)
-    private val currentUserType = MockData.getFakeSession().tipoUsuario
+    private val currentUserType by lazy {
+        SessionManager.getUserType(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

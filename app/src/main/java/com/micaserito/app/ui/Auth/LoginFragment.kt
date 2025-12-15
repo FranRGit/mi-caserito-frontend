@@ -60,11 +60,12 @@ class LoginFragment : Fragment() {
                 binding.btnLogin.text = "Ingresar"
 
                 if (user != null) {
-                    // GUARDAR TOKEN Y TIPO LOCALMENTE
+                    // GUARDAR TOKEN, TIPO Y EL ID DEL USUARIO
                     SessionManager.saveSession(
                         requireContext(),
                         user.token,
-                        user.tipoUsuario
+                        user.tipoUsuario,
+                        user.idUsuario // <-- ¡AGREGAR EL ID DEL USUARIO!
                     )
 
                     // IR AL HOME
