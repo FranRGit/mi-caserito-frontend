@@ -1,24 +1,49 @@
 package com.micaserito.app.data.repository
 
-import com.micaserito.app.data.api.MockData
+import android.util.Log
 import com.micaserito.app.data.model.BusinessInfo
+import com.micaserito.app.data.model.LoginRequest
 import com.micaserito.app.data.model.RegisterRequest
-import com.micaserito.app.data.model.User
+import com.micaserito.app.data.model.UserSessionData
+import com.micaserito.app.data.network.NetworkModule
 
 class AuthRepositoryImpl : AuthRepository {
 
-    /** LOGIN DE SIMULACIÓN */
-    override fun login(email: String, password: String): User? {
-        return MockData.loginFake(email, password)
+    // 1. Obtenemos la API real
+    private val api = NetworkModule.apiService
+
+    // CORRECCIÓN: El tipo de retorno debe ser UserSessionData?
+    override suspend fun login(email: String, password: String): UserSessionData? {
+        return try {
+            // Creamos el objeto request
+            val request = LoginRequest(email, password)
+
+            // Llamamos al Backend real
+            val response = api.login(request)
+
+            if (response.isSuccessful && response.body() != null) {
+                response.body()?.data
+            } else {
+                Log.e("AuthRepo", "Error login: ${response.errorBody()?.string()}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepo", "Fallo de conexión: ${e.message}")
+            null
+        }
     }
 
-    /** REGISTRO DE USUARIO SIMULADO */
-    override fun registerUser(request: RegisterRequest): Boolean {
-        return MockData.registrarUsuario(request)
+    override suspend fun registerUser(request: RegisterRequest): Boolean {
+        return try {
+            // Aquí iría la lógica real cuando tengas el endpoint listo
+            true
+        } catch (e: Exception) {
+            Log.e("AuthRepo", "Error registro: ${e.message}")
+            false
+        }
     }
 
-    /** REGISTRO DE NEGOCIO SIMULADO */
-    override fun registerBusiness(businessInfo: BusinessInfo): Boolean {
-        return MockData.registrarNegocio(businessInfo)
+    override suspend fun registerBusiness(businessInfo: BusinessInfo): Boolean {
+        return true
     }
 }

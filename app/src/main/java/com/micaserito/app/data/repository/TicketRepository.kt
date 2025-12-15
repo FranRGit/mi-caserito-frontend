@@ -1,4 +1,4 @@
-package com.micaserito.app.data
+package com.micaserito.app.data.repository
 
 import com.micaserito.app.data.model.TicketSummary
 

@@ -1,239 +1,167 @@
 package com.micaserito.app.data.api
 
-import com.micaserito.app.data.model.CategoriaNegocio
-import com.micaserito.app.data.model.ChatMessage
-import com.micaserito.app.data.model.ChatSummary
-import com.micaserito.app.data.model.FeedData
-import com.micaserito.app.data.model.FeedItem
-import com.micaserito.app.data.model.FeedSection
-import com.micaserito.app.data.model.HomeFeedResponse
-import com.micaserito.app.data.model.ItemDetails
-import com.micaserito.app.data.model.NegocioProfile
-import com.micaserito.app.data.model.PaginationMeta
-import com.micaserito.app.data.model.ReportSummary
-import com.micaserito.app.data.model.TicketSummary
-import com.micaserito.app.data.model.UserSessionData
-import com.micaserito.app.data.model.User
-import com.micaserito.app.data.model.RegisterRequest
-import com.micaserito.app.data.model.BusinessInfo
-
+import com.micaserito.app.data.model.*
 
 object MockData {
 
-    // --- Base de Datos en Memoria (de HEAD) ---
+    // --- CONSTANTES DEL ECOSISTEMA ---
+    private const val ID_CLIENTE = 1
 
+    // Negocio 1: Bodega
+    private const val ID_VENDEDOR_1 = 2
+    private const val ID_NEGOCIO_1 = 100
+    private const val NOMBRE_NEGOCIO_1 = "Bodega Don Pepe"
+    private const val IMG_NEGOCIO_1 = "https://i.pravatar.cc/150?img=33"
+
+    // Negocio 2: Ferretería (NUEVO)
+    private const val ID_VENDEDOR_2 = 3
+    private const val ID_NEGOCIO_2 = 200
+    private const val NOMBRE_NEGOCIO_2 = "Ferretería El Clavo"
+    private const val IMG_NEGOCIO_2 = "https://i.pravatar.cc/150?img=11"
+
+    // --- BASE DE DATOS DE USUARIOS ---
     private val usuariosRegistrados = mutableListOf<User>(
-        User(1, "cliente@demo.com", "cliente", "token_cliente_123"),
-        User(2, "vendedor@demo.com", "vendedor", "token_vendedor_123")
+        User(ID_CLIENTE, "cliente@demo.com", "cliente", "123"),
+        User(ID_VENDEDOR_1, "vendedor@demo.com", "vendedor", "123"), // Dueño Bodega
+        User(ID_VENDEDOR_2, "ferretero@demo.com", "vendedor", "123")  // Dueño Ferretería
     )
 
-    // 1. Lista de TODOS los ítems (Con idNegocio añadido para la lógica de permisos)
+    // Mapa para relacionar Vendedor -> Negocio
+    private val vendedorToNegocioMap = mapOf(
+        ID_VENDEDOR_1 to ID_NEGOCIO_1,
+        ID_VENDEDOR_2 to ID_NEGOCIO_2
+    )
+
+    // Tiene valores por defecto (Vendedor 1) para no romper tus componentes antiguos
+    fun getFakeSession(
+        idUsuario: Int = ID_VENDEDOR_1,
+        tipoUsuario: String = "vendedor"
+    ): UserSessionData {
+        return UserSessionData(
+            idUsuario = idUsuario,
+            tipoUsuario = tipoUsuario,
+            token = "eyJ_TOKEN_SIMULADO_${idUsuario}_${tipoUsuario}"
+        )
+    }
+
+    // AUTH: Busca el usuario y usa getFakeSession para generar la respuesta
+    fun loginFake(email: String, password: String): UserSessionData? {
+        val userFound = usuariosRegistrados.firstOrNull { it.email == email && it.password == password }
+
+        return if (userFound != null) {
+            // Aquí pasamos el ID y TIPO dinámicamente
+            getFakeSession(userFound.id, userFound.tipoUsuario)
+        } else {
+            null
+        }
+    }
+
+    // --- BASE DE DATOS DE ÍTEMS ---
     private val allItems = listOf(
-        // Alimentos (idNegocio: 10 = Dueño, 20 = Otro)
-        FeedItem("product", ItemDetails(idProducto = 1, nombreProducto = "Pollo a la Brasa", precioBase = 55.90, nombreNegocio = "Pardos Chicken", ciudad = "Miraflores", imageUrl = "https://i.imgur.com/iUzGAnp.jpg", categoria = "Alimentos", idNegocio = 10)),
-        FeedItem("product", ItemDetails(idProducto = 2, nombreProducto = "Leche Gloria (lata)", precioBase = 4.20, nombreNegocio = "Bodega El Chino", ciudad = "Surquillo", imageUrl = "https://i.imgur.com/8u1D5sR.jpg", categoria = "Alimentos", idNegocio = 20)),
-        FeedItem("business", ItemDetails(idNegocio = 101, nombreNegocio = "Verdulería Doña Juana", calificacionPromedio = 4.8, direccion = "Mercado N°2, Surco", profileUrl = "https://i.pravatar.cc/150?img=1", categoria = "Alimentos")),
-        // Ropa
-        FeedItem("product", ItemDetails(idProducto = 3, nombreProducto = "Polo Básico de Algodón", precioBase = 39.90, nombreNegocio = "Gamarra Express", ciudad = "La Victoria", imageUrl = "https://i.imgur.com/9aA2N6V.jpg", categoria = "Ropa", idNegocio = 10)),
-        FeedItem("business", ItemDetails(idNegocio = 102, nombreNegocio = "Boutique Elegancia", calificacionPromedio = 4.9, direccion = "C.C. Jockey Plaza", profileUrl = "https://i.pravatar.cc/150?img=2", categoria = "Ropa")),
-        // Campo (Ferretería)
-        FeedItem("product", ItemDetails(idProducto = 4, nombreProducto = "Martillo de Uña", precioBase = 25.00, nombreNegocio = "Ferretería El Tornillo", ciudad = "Independencia", imageUrl = "https://i.imgur.com/4z2zL9E.jpg", categoria = "Campo", idNegocio = 20)),
-        FeedItem("business", ItemDetails(idNegocio = 103, nombreNegocio = "Sodimac", calificacionPromedio = 4.5, direccion = "Av. Angamos", profileUrl = "https://i.pravatar.cc/150?img=3", categoria = "Campo")),
-        // Belleza
-        FeedItem("product", ItemDetails(idProducto = 5, nombreProducto = "Protector Solar SPF 50", precioBase = 60.00, nombreNegocio = "Farmacia MiFarma", ciudad = "San Isidro", imageUrl = "https://i.imgur.com/sC050R4.jpg", categoria = "Belleza")),
-        // Hogar
-        FeedItem("product", ItemDetails(idProducto = 6, nombreProducto = "Juego de Sábanas 2 Plazas", precioBase = 120.00, nombreNegocio = "CasaIdeas", ciudad = "Lince", imageUrl = "https://i.imgur.com/v2Jv27J.jpg", categoria = "Hogar")),
-        // Post
-        FeedItem("post", ItemDetails(idPost = 501, nombreNegocio = "Panadería El Buen Sabor", profileUrl = "https://i.pravatar.cc/150?img=12", fechaCreacion = "hace 2 horas", descripcion = "¡Salieron los panes calientes! 🥖🥖", imageUrl = "https://i.imgur.com/L8a1qj9.jpg"))
+        // === NEGOCIO 1: BODEGA ===
+        FeedItem("business", ItemDetails(idNegocio = ID_NEGOCIO_1, nombreNegocio = NOMBRE_NEGOCIO_1, calificacionPromedio = 4.8, direccion = "Av. Principal 123", profileUrl = IMG_NEGOCIO_1, categoria = "Bodegas")),
+        FeedItem("product", ItemDetails(idProducto = 1, nombreProducto = "Pollo a la Brasa", precioBase = 55.90, nombreNegocio = NOMBRE_NEGOCIO_1, imageUrl = "https://i.imgur.com/iUzGAnp.jpg", categoria = "Alimentos", idNegocio = ID_NEGOCIO_1)),
+        FeedItem("product", ItemDetails(idProducto = 2, nombreProducto = "Leche Gloria", precioBase = 4.20, nombreNegocio = NOMBRE_NEGOCIO_1, imageUrl = "https://i.imgur.com/8u1D5sR.jpg", categoria = "Alimentos", idNegocio = ID_NEGOCIO_1)),
+        FeedItem("post", ItemDetails(idPost = 501, nombreNegocio = NOMBRE_NEGOCIO_1, profileUrl = IMG_NEGOCIO_1, fechaCreacion = "hace 2 horas", descripcion = "¡Pan caliente! 🥖", imageUrl = "https://i.imgur.com/L8a1qj9.jpg", idNegocio = ID_NEGOCIO_1)),
+
+        // === NEGOCIO 2: FERRETERÍA (NUEVO) ===
+        FeedItem("business", ItemDetails(idNegocio = ID_NEGOCIO_2, nombreNegocio = NOMBRE_NEGOCIO_2, calificacionPromedio = 4.5, direccion = "Jr. Herramientas 456", profileUrl = IMG_NEGOCIO_2, categoria = "Ferreterías")),
+        FeedItem("product", ItemDetails(idProducto = 10, nombreProducto = "Taladro Percutor", precioBase = 150.00, nombreNegocio = NOMBRE_NEGOCIO_2, imageUrl = "https://i.imgur.com/4z2zL9E.jpg", categoria = "Ferreterías", idNegocio = ID_NEGOCIO_2)),
+        FeedItem("product", ItemDetails(idProducto = 11, nombreProducto = "Martillo", precioBase = 25.00, nombreNegocio = NOMBRE_NEGOCIO_2, imageUrl = "https://i.imgur.com/9aA2N6V.jpg", categoria = "Ferreterías", idNegocio = ID_NEGOCIO_2)),
+        FeedItem("post", ItemDetails(idPost = 502, nombreNegocio = NOMBRE_NEGOCIO_2, profileUrl = IMG_NEGOCIO_2, fechaCreacion = "hace 5 horas", descripcion = "Oferta en pinturas 🎨", imageUrl = "https://i.imgur.com/sC050R4.jpg", idNegocio = ID_NEGOCIO_2))
     )
 
-    // 2. Datos para reportes (de HEAD)
-    private val sentReports = listOf(
-        ReportSummary(1, "Problema", "El producto llegó roto", "Contra: Bodega Mala Fama", "Pendiente", "12 Oct 2025"),
-        ReportSummary(2, "Estafa", "Nunca enviaron el pedido", "Contra: Tienda Fantasma", "En revisión", "11 Oct 2025"),
-        ReportSummary(4, "Entrega", "Pedido incompleto", "Contra: Librería Central", "Resuelta", "08 Oct 2025"),
-        ReportSummary(5, "Retraso", "Demora de 3 horas", "Contra: Pizza Express", "Rechazada", "01 Oct 2025")
-    )
-    private val receivedReports = listOf(
-        ReportSummary(10, "Falta", "No se presentó a la entrega", "Motivo: Inasistencia", "Expirada", "12 Oct 2025"),
-        ReportSummary(11, "Falta", "Canceló la venta sin motivo", "Motivo: Cancelación", "Expirada", "12 Oct 2025"),
-        ReportSummary(12, "Advertencia", "Por lenguaje inapropiado", "Motivo: Mal vocabulario", "Expirada", "12 Oct 2025"),
-        ReportSummary(13, "Sanción", "Cuenta suspendida por 30 días", "Motivo: Reincidencia en faltas", "Activa", "12 Oct 2025")
-    )
-
-    // 3. Tickets (de HEAD)
-    private val _myTickets: MutableList<TicketSummary> = mutableListOf(
-        TicketSummary(101, "ORD-8821", "Bodega Don Pepe", 54.50, "pendiente", "2023-10-25"),
-        TicketSummary(102, "ORD-7743", "Farmacia Salud", 12.00, "completado", "2023-10-20"),
-        TicketSummary(103, "ORD-1120", "Pollería El Sabroso", 89.90, "cancelado", "2023-10-15")
-    )
-
-    // --- Funciones de Utilidad y Auth (Fusionadas) ---
-
-    // Permite que los Repositorios obtengan la instancia del MockService
-    fun getMockService(): MockApiService {
-        return MockApiService()
-    }
-
-    // Usamos la simulación de vendedor (idUsuario=10) para pruebas de permisos
-    fun getFakeSession() = UserSessionData(
-        idUsuario = 10,
-        tipoUsuario = "vendedor",
-        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake.token"
-    )
-
-    // Funciones de Auth (de feature/alexander_cambios-2)
-    fun loginFake(email: String, password: String): User? {
-        return usuariosRegistrados.firstOrNull { it.email == email }
-    }
-
-    fun registrarUsuario(request: RegisterRequest): Boolean {
-        val nuevo = User(
-            id = usuariosRegistrados.size + 1,
-            email = request.email,
-            tipoUsuario = request.tipoUsuario,
-            token = "token_mock_${request.email}"
-        )
-        usuariosRegistrados.add(nuevo)
-        return true
-    }
-
-    fun registrarNegocio(business: BusinessInfo): Boolean {
-        return true
-    }
-
-    // --- 2. HOME & DISCOVER ---
-
-    fun getCategories(): List<CategoriaNegocio> {
-        // Usamos la lista de categorías extendida de feature/alexander_cambios-2
-        return listOf(
-            CategoriaNegocio(1, "Bodegas"),
-            CategoriaNegocio(2, "Verdulerías"),
-            CategoriaNegocio(3, "Ferreterías"),
-            CategoriaNegocio(4, "Farmacias"),
-            CategoriaNegocio(5, "Restaurantes"),
-            CategoriaNegocio(6, "Alimentos"), // Añadidos para ser consistentes con allItems
-            CategoriaNegocio(7, "Ropa"),
-            CategoriaNegocio(8, "Campo"),
-            CategoriaNegocio(9, "Belleza"),
-            CategoriaNegocio(10, "Hogar")
-        )
-    }
-
+    // --- HOME & DISCOVER ---
     fun getHomeFeed(): HomeFeedResponse {
-        // Reutilizamos items de allItems para el feed (de HEAD)
-        val products = allItems.filter { it.type == "product" }.take(3)
-        val posts = allItems.filter { it.type == "post" }.take(1)
-
-        val sectionProducts = FeedSection(
-            type = "featured_products",
-            title = "Ofertas cerca de ti",
-            items = products
-        )
-
-        val sectionPosts = FeedSection(
-            type = "latest_posts",
-            title = "Novedades de tus caseritos",
-            items = posts
-        )
+        val products = allItems.filter { it.type == "product" }.take(5)
+        val posts = allItems.filter { it.type == "post" }
 
         return HomeFeedResponse(
-            status = "success",
-            data = FeedData(sections = listOf(sectionProducts, sectionPosts)),
-            pagination = PaginationMeta(1, 1, false)
+            "success",
+            FeedData(sections = listOf(
+                FeedSection("featured_products", "Ofertas Destacadas", products),
+                FeedSection("latest_posts", "Novedades", posts)
+            )),
+            PaginationMeta(1, 1, false)
         )
     }
 
-    // FUNCIÓN para manejar los filtros de tipo, categoría y búsqueda. (Mejorada de HEAD)
     fun getDiscoverResults(filter: String, categoryId: Int? = null, query: String = ""): HomeFeedResponse {
+        var results = allItems
 
-        var results = allItems // Empezamos con todos los items
-
-        // 1. Filtrar por Tipo (product, business, or all)
         results = when (filter) {
             "negocios" -> results.filter { it.type == "business" }
             "productos" -> results.filter { it.type == "product" }
-            else -> results.filter { it.type != "post" } // Excluimos posts para Discover general
+            else -> results.filter { it.type != "post" }
         }
 
-        // 2. Filtrar por Categoría
         if (categoryId != null) {
-            val categoryName = getCategories().find { it.id == categoryId }?.nombre
-            if (categoryName != null) {
-                results = results.filter { it.details.categoria == categoryName }
-            }
+            val catName = getCategories().find { it.id == categoryId }?.nombre
+            if (catName != null) results = results.filter { it.details.categoria == catName }
         }
 
-        // 3. Filtrar por Búsqueda (opcional)
         if (query.isNotEmpty()) {
             results = results.filter {
                 it.details.nombreProducto?.contains(query, ignoreCase = true) == true ||
                         it.details.nombreNegocio?.contains(query, ignoreCase = true) == true
             }
         }
-
-        return HomeFeedResponse(
-            "success",
-            FeedData(items = results),
-            PaginationMeta(1, 1, false)
-        )
+        return HomeFeedResponse("success", FeedData(items = results), PaginationMeta(1, 1, false))
     }
 
-    // --- 3. PERFIL NEGOCIO ---
-    fun getNegocioProfile(id: Int): NegocioProfile {
-        return NegocioProfile(
-            idNegocio = id,
-            nombreNegocio = "Bodega Don Pepe",
-            descripcion = "La mejor bodega del barrio. Aceptamos Yape y Plin. Delivery gratis en la zona.",
-            rubro = "Bodega",
-            profileUrl = "https://i.pravatar.cc/150?img=33",
-            calificacionPromedio = 4.8,
-            ventasTotales = 1540,
-            horarioResumen = "Lun-Dom: 7am - 10pm"
-        )
+    // --- PERFIL DE NEGOCIO (Adaptado para 2 negocios) ---
+    fun getNegocioProfile(idNegocio: Int): NegocioProfile {
+        return if (idNegocio == ID_NEGOCIO_2) {
+            NegocioProfile(
+                idNegocio = ID_NEGOCIO_2,
+                nombreNegocio = NOMBRE_NEGOCIO_2,
+                descripcion = "Especialistas en construcción y acabados.",
+                rubro = "Ferretería",
+                profileUrl = IMG_NEGOCIO_2,
+                calificacionPromedio = 4.5,
+                ventasTotales = 120,
+                horarioResumen = "Lun-Sab: 8am - 6pm"
+            )
+        } else {
+            NegocioProfile(
+                idNegocio = ID_NEGOCIO_1,
+                nombreNegocio = NOMBRE_NEGOCIO_1,
+                descripcion = "Bodega de confianza del barrio.",
+                rubro = "Bodega",
+                profileUrl = IMG_NEGOCIO_1,
+                calificacionPromedio = 4.8,
+                ventasTotales = 500,
+                horarioResumen = "Lun-Dom: 7am - 11pm"
+            )
+        }
     }
 
-    // Ahora filtramos desde allItems por ID de negocio (de HEAD)
     fun getBusinessProducts(negocioId: Int): List<ItemDetails> {
         return allItems
             .filter { it.type == "product" && it.details.idNegocio == negocioId }
             .map { it.details }
     }
 
-    // --- 4. CHAT ---
-    fun getChatList(): List<ChatSummary> {
-        return listOf(
-            ChatSummary(1, "Bodega Don Pepe", "https://i.pravatar.cc/150?img=33", "Ya salió tu pedido, llega en 5 min", 2, "2023-10-25T14:30:00Z"),
-            ChatSummary(2, "Ferretería El Tornillo", "https://i.pravatar.cc/150?img=11", "Sí tenemos stock de pintura blanca", 0, "2023-10-24T09:15:00Z"),
-            ChatSummary(3, "Juan Perez (Cliente)", "https://i.pravatar.cc/150?img=5", "Gracias joven", 0, "2023-10-20T18:00:00Z")
-        )
-    }
+    // --- UTILIDADES ---
+    fun getCategories() = listOf(
+        CategoriaNegocio(1, "Bodegas"),
+        CategoriaNegocio(2, "Alimentos"),
+        CategoriaNegocio(3, "Ferreterías")
+    )
 
-    fun getChatMessages(): List<ChatMessage> {
-        return listOf(
-            ChatMessage(1, 99, "Hola casero, ¿tienes gas?", "2023-10-25T14:00:00Z", true),
-            ChatMessage(2, 10, "Sí, el balón de 10kg está 45 soles", "2023-10-25T14:05:00Z", true),
-            ChatMessage(3, 99, "Mándame uno por favor", "2023-10-25T14:06:00Z", true),
-            ChatMessage(4, 10, "Ya salió tu pedido, llega en 5 min", "2023-10-25T14:30:00Z", false)
-        )
-    }
+    fun getMockService() = MockApiService()
 
-    // --- 5. USUARIO (TICKETS & SECURITY) ---
+    // Auth Helpers (No cambiar)
+    fun registrarUsuario(request: RegisterRequest) = true
+    fun registrarNegocio(business: BusinessInfo) = true
 
-    fun getMyTickets(): List<TicketSummary> {
-        return _myTickets.toList()
-    }
+    // Tickets (Solo ejemplo)
+    fun getMyTickets() = listOf(TicketSummary(101, "ORD-8821", NOMBRE_NEGOCIO_1, 54.50, "pendiente", "2025-10-25"))
+    fun addMyTicket(ticket: TicketSummary) {}
+    fun getReports(tipo: String) = emptyList<ReportSummary>()
+    fun getChatList() = listOf(ChatSummary(1, NOMBRE_NEGOCIO_1, IMG_NEGOCIO_1, "Hola", 0, "2025-10-25"))
+    fun getChatMessages() = emptyList<ChatMessage>()
 
-    fun addMyTicket(ticket: TicketSummary) {
-        _myTickets.add(0, ticket)
-        println("DEBUG: Nuevo Ticket Añadido: ${ticket.codigoTicket}")
-    }
-
-    fun getReports(tipo: String): List<ReportSummary> {
-        return if (tipo == "sent") {
-            sentReports // Usamos la lista detallada de HEAD
-        } else {
-            receivedReports // Usamos la lista detallada de HEAD
-        }
-    }
+    // Helper extra por si necesitas saber qué negocio es de quién
+    fun getBusinessIdByUserId(userId: Int): Int? = vendedorToNegocioMap[userId]
 }

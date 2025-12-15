@@ -4,15 +4,16 @@ import com.micaserito.app.data.api.MockData
 import com.micaserito.app.data.model.BusinessInfo
 import com.micaserito.app.data.model.RegisterRequest
 import com.micaserito.app.data.model.User
+import com.micaserito.app.data.model.UserSessionData
 
 interface AuthRepository {
 
     /** LOGIN */
-    fun login(email: String, password: String): User?
+    suspend fun login(email: String, password: String): UserSessionData?
 
     /** REGISTRO DE USUARIO */
-    fun registerUser(request: RegisterRequest): Boolean
+    suspend fun registerUser(request: RegisterRequest): Boolean
 
     /** REGISTRO DE NEGOCIO (OPCIONAL SI ES VENDEDOR) */
-    fun registerBusiness(businessInfo: BusinessInfo): Boolean
+    suspend fun registerBusiness(businessInfo: BusinessInfo): Boolean
 }

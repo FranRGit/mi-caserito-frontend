@@ -14,13 +14,19 @@ class MockApiService : ApiService {
 
     // ================= AUTENTICACIÓN =================
     override suspend fun login(request: LoginRequest): Response<LoginResponse> {
-        delay(NETWORK_DELAY)
-        // Login "Hardcodeado": email=test, pass=123
-        return if (request.email.contains("@") && request.password.isNotEmpty()) {
-            val response = LoginResponse("success", MockData.getFakeSession())
+        delay(NETWORK_DELAY) // Simula espera de internet
+
+        // 1. Llamamos a MockData pasando el email y password reales del formulario
+        val userSession = MockData.loginFake(request.email, request.password)
+
+        // 2. Verificamos si MockData encontró al usuario
+        return if (userSession != null) {
+            // ¡ÉXITO! Devolvemos los datos de ese usuario específico
+            val response = LoginResponse("success", userSession)
             Response.success(response)
         } else {
-            Response.error(401, ResponseBody.create(null, "Credenciales inválidas"))
+            // FALLO: Email o contraseña incorrectos
+            Response.error(401, ResponseBody.create(null, "Credenciales incorrectas (Prueba: cliente@demo.com / 123)"))
         }
     }
 
@@ -30,7 +36,6 @@ class MockApiService : ApiService {
         data: Map<String, RequestBody>
     ): Response<RegisterResponse> {
         delay(NETWORK_DELAY)
-        // Simulamos éxito siempre
         return Response.success(RegisterResponse("success", "Usuario registrado"))
     }
 

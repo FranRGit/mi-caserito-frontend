@@ -4,5 +4,5 @@ data class User(
     val id: Int,
     val email: String,
     val tipoUsuario: String,  // cliente / vendedor
-    val token: String
+    val password: String
 )
