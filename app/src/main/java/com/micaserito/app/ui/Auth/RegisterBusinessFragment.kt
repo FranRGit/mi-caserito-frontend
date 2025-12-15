@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.micaserito.app.R
 import com.micaserito.app.databinding.FragmentRegisterBusinessBinding
+import com.micaserito.app.ui.Map.MapPickerFragment
 
 class RegisterBusinessFragment : Fragment() {
 
@@ -19,6 +20,10 @@ class RegisterBusinessFragment : Fragment() {
     private val args by lazy {
         RegisterBusinessFragmentArgs.fromBundle(requireArguments())
     }
+
+    // Estado de ubicación del negocio
+    private var businessLocationSelected = false
+    private var businessLocationText: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,27 +37,49 @@ class RegisterBusinessFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔁 Mostrar / ocultar RUC
+        // Mostrar / ocultar RUC según tipo de vendedor
         binding.layoutRuc.visibility =
             if (args.requireRuc) View.VISIBLE else View.GONE
 
         configurarSpinners()
 
-        // 🔙 Flecha verde (volver)
+        // 🔙 Volver
         binding.btnBackBusiness.setOnClickListener {
             findNavController().popBackStack()
         }
 
-        // ➡️ Siguiente
+        // 📍 Seleccionar ubicación del negocio (MAPA)
+        binding.btnSelectBusinessLocation.setOnClickListener {
+
+            val dialog = MapPickerFragment { location ->
+
+                //Se ejecuta SOLO cuando el usuario confirma ubicación
+                businessLocationSelected = true
+                businessLocationText = location
+
+                binding.tvBusinessLocationSelected.text = location
+                binding.tvBusinessLocationSelected.setTextColor(
+                    resources.getColor(R.color.black, null)
+                )
+
+                Toast.makeText(
+                    requireContext(),
+                    "Ubicación del negocio registrada",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            dialog.show(parentFragmentManager, "BusinessMapPicker")
+        }
+
+        // Siguiente
         binding.btnBusinessNext.setOnClickListener {
 
             val nombre = binding.etBusinessName.text.toString().trim()
             val ruc = binding.etRuc.text.toString().trim()
-
             val categoria = binding.spBusinessCategory.selectedItem.toString()
-            val direccion = binding.spBusinessAddress.selectedItem.toString()
 
-            // VALIDACIONES
+            // Validaciones
             if (nombre.isEmpty()) {
                 binding.etBusinessName.error = "Campo obligatorio"
                 return@setOnClickListener
@@ -67,10 +94,10 @@ class RegisterBusinessFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (direccion == getString(R.string.seleccione)) {
+            if (!businessLocationSelected) {
                 Toast.makeText(
                     requireContext(),
-                    "Seleccione una dirección",
+                    "Debe seleccionar la ubicación del negocio",
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
@@ -81,17 +108,16 @@ class RegisterBusinessFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // TODO: Guardar datos (Mock / ViewModel)
+            // Aquí luego podrás guardar:
+            // businessLocationText (dirección real / coordenadas)
 
-            val action =
+            findNavController().navigate(
                 RegisterBusinessFragmentDirections.actionBusinessToConfirm()
-            findNavController().navigate(action)
+            )
         }
     }
 
     private fun configurarSpinners() {
-
-        // Categorías
         val categorias = listOf(
             getString(R.string.seleccione),
             "Bodega",
@@ -105,22 +131,6 @@ class RegisterBusinessFragment : Fragment() {
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
             categorias
-        )
-
-        // Direcciones (mock)
-        val direcciones = listOf(
-            getString(R.string.seleccione),
-            "Lima",
-            "Callao",
-            "Arequipa",
-            "Cusco",
-            "Trujillo"
-        )
-
-        binding.spBusinessAddress.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            direcciones
         )
     }
 

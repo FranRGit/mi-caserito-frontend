@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.micaserito.app.R
 import com.micaserito.app.databinding.FragmentRegisterBinding
+import com.micaserito.app.ui.Map.MapPickerFragment
 import java.io.File
 
 class RegisterFragment : Fragment() {
@@ -24,10 +25,14 @@ class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
 
-    // URIs de imágenes (frontend)
+    // Imágenes
     private var dniImageUri: Uri? = null
     private var profileImageUri: Uri? = null
     private var isDni = true
+
+    // Ubicación
+    private var locationSelected = false
+    private var locationText: String? = null
 
     /* =======================
        GALERÍA
@@ -38,11 +43,11 @@ class RegisterFragment : Fragment() {
                 if (isDni) {
                     dniImageUri = it
                     binding.btnUploadDni.tag = "OK"
-                    Toast.makeText(requireContext(), "DNI cargado desde galería", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "DNI cargado", Toast.LENGTH_SHORT).show()
                 } else {
                     profileImageUri = it
                     binding.btnUploadPhoto.tag = "OK"
-                    Toast.makeText(requireContext(), "Foto cargada desde galería", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Foto de perfil cargada", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -55,28 +60,18 @@ class RegisterFragment : Fragment() {
             if (success) {
                 if (isDni) {
                     binding.btnUploadDni.tag = "OK"
-                    Toast.makeText(requireContext(), "DNI capturado con cámara", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "DNI capturado", Toast.LENGTH_SHORT).show()
                 } else {
                     binding.btnUploadPhoto.tag = "OK"
-                    Toast.makeText(requireContext(), "Foto capturada con cámara", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Foto capturada", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-    /* =======================
-       PERMISO CÁMARA
-     ======================= */
     private val cameraPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                abrirCamara()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Permiso de cámara denegado",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            if (granted) abrirCamara()
+            else Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
         }
 
     override fun onCreateView(
@@ -92,68 +87,81 @@ class RegisterFragment : Fragment() {
 
         cargarSpinners()
 
-        // 📷 SUBIR DNI
+        // DNI
         binding.btnUploadDni.setOnClickListener {
             isDni = true
             mostrarOpcionesImagen()
         }
 
-        // 📷 SUBIR FOTO PERFIL
+        // Foto perfil
         binding.btnUploadPhoto.setOnClickListener {
             isDni = false
             mostrarOpcionesImagen()
         }
 
-        // ➡️ SIGUIENTE
+        // Ubicación
+        binding.btnSelectLocation.setOnClickListener {
+            val dialog = MapPickerFragment { location ->
+                locationSelected = true
+                locationText = location
+
+                binding.tvLocationSelected.text = "Ubicación seleccionada"
+                binding.tvLocationSelected.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.black)
+                )
+
+                Toast.makeText(
+                    requireContext(),
+                    "Ubicación registrada correctamente",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            dialog.show(parentFragmentManager, "MapPicker")
+        }
+
+        // Siguiente
         binding.btnNext.setOnClickListener {
             if (!validarFormulario()) return@setOnClickListener
 
             val tipo = binding.spUserType.selectedItem.toString().lowercase()
 
             when (tipo) {
-                "comprador" -> {
+                "comprador" ->
                     findNavController().navigate(
                         RegisterFragmentDirections.actionRegisterToConfirm()
                     )
-                }
-                "vendedor básico" -> {
+
+                "vendedor básico" ->
                     findNavController().navigate(
                         RegisterFragmentDirections.actionRegisterToBusiness(false)
                     )
-                }
-                "vendedor verificado" -> {
+
+                "vendedor verificado" ->
                     findNavController().navigate(
                         RegisterFragmentDirections.actionRegisterToBusiness(true)
                     )
-                }
             }
         }
 
-        // 🔙 VOLVER
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
     }
 
     /* =======================
-       DIÁLOGO OPCIONES
+       IMÁGENES
      ======================= */
     private fun mostrarOpcionesImagen() {
-        val opciones = arrayOf("Tomar foto", "Elegir de galería")
-
         AlertDialog.Builder(requireContext())
             .setTitle("Seleccionar imagen")
-            .setItems(opciones) { _, which ->
+            .setItems(arrayOf("Tomar foto", "Elegir de galería")) { _, which ->
                 when (which) {
                     0 -> verificarPermisoCamara()
-                    1 -> abrirGaleria()
+                    1 -> galleryLauncher.launch("image/*")
                 }
             }
             .show()
-    }
-
-    private fun abrirGaleria() {
-        galleryLauncher.launch("image/*")
     }
 
     private fun verificarPermisoCamara() {
@@ -161,20 +169,13 @@ class RegisterFragment : Fragment() {
                 requireContext(),
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            abrirCamara()
-        } else {
-            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
+        ) abrirCamara()
+        else cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
     }
 
     private fun abrirCamara() {
         val uri = crearUriImagen()
-        if (isDni) {
-            dniImageUri = uri
-        } else {
-            profileImageUri = uri
-        }
+        if (isDni) dniImageUri = uri else profileImageUri = uri
         cameraLauncher.launch(uri)
     }
 
@@ -183,7 +184,6 @@ class RegisterFragment : Fragment() {
         if (!dir.exists()) dir.mkdirs()
 
         val file = File(dir, "img_${System.currentTimeMillis()}.jpg")
-
         return FileProvider.getUriForFile(
             requireContext(),
             "${requireContext().packageName}.provider",
@@ -204,13 +204,13 @@ class RegisterFragment : Fragment() {
 
         binding.spUserType.adapter = adapter(R.array.user_types)
         binding.spGender.adapter = adapter(R.array.genders)
-        binding.spLocation.adapter = adapter(R.array.locations)
     }
 
     /* =======================
        VALIDACIONES
      ======================= */
     private fun validarFormulario(): Boolean {
+
         if (binding.etName.text.isNullOrBlank()) {
             binding.etName.error = "Campo obligatorio"
             return false
@@ -228,6 +228,15 @@ class RegisterFragment : Fragment() {
 
         if (profileImageUri == null) {
             Toast.makeText(requireContext(), "Debe cargar foto de perfil", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!locationSelected) {
+            Toast.makeText(
+                requireContext(),
+                "Debe seleccionar su ciudad de residencia",
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
 

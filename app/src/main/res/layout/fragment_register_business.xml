@@ -42,7 +42,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nombre del negocio "
+            android:text="Nombre del negocio"
             android:textSize="13sp"
             android:textStyle="bold"
             android:textColor="@color/black"
@@ -95,7 +95,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Categoría del negocio "
+            android:text="Categoría del negocio"
             android:textStyle="bold"
             android:textSize="13sp"
             android:textColor="@color/black"
@@ -117,32 +117,44 @@
                 android:spinnerMode="dropdown"/>
         </LinearLayout>
 
-        <!-- ✅ NUEVO CAMPO: Dirección del negocio -->
+        <!-- UBICACIÓN DEL NEGOCIO (MAPA) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dirección del negocio"
+            android:text="Ubicación del negocio"
             android:textStyle="bold"
             android:textSize="13sp"
             android:textColor="@color/black"
             android:layout_marginBottom="6dp"/>
 
         <LinearLayout
+            android:id="@+id/btnSelectBusinessLocation"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/bg_input_field"
             android:backgroundTint="#F5F5F5"
-            android:paddingHorizontal="4dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal">
 
-            <Spinner
-                android:id="@+id/spBusinessAddress"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:spinnerMode="dropdown" />
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_location"
+                android:tint="#9E9E9E"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/tvBusinessLocationSelected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seleccionar ubicación en el mapa"
+                android:textColor="#9E9E9E"
+                android:textSize="14sp"/>
         </LinearLayout>
-        <!-- FIN DEL NUEVO CAMPO -->
 
         <!-- Descripción -->
         <TextView

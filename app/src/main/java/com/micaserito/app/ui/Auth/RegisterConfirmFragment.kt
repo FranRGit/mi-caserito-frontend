@@ -28,19 +28,19 @@ class RegisterConfirmFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔙 Flecha verde (retrocede correctamente)
+        // Flecha verde (retrocede correctamente)
         binding.btnBackConfirm.setOnClickListener {
             findNavController().popBackStack()
         }
 
-        // ✅ Finalizar registro
+        // Finalizar registro
         binding.btnFinish.setOnClickListener {
 
             val email = binding.etConfirmEmail.text.toString().trim()
             val password = binding.etConfirmPassword.text.toString().trim()
             val repeat = binding.etRepeatPassword.text.toString().trim()
 
-            // 🔎 VALIDACIONES
+            // VALIDACIONES
             if (email.isEmpty()) {
                 binding.etConfirmEmail.error = "Ingrese su correo"
                 return@setOnClickListener

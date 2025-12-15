@@ -33,7 +33,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔐 LOGIN
+        // LOGIN
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
@@ -51,7 +51,7 @@ class LoginFragment : Fragment() {
 
             if (user != null) {
 
-                // ✅ GUARDAR TOKEN Y TIPO LOCALMENTE
+                // GUARDAR TOKEN Y TIPO LOCALMENTE
                 SessionManager.saveSession(
                     requireContext(),
                     user.token,
