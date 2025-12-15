@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.micaserito.app.data.network.NetworkModule
 import com.micaserito.app.data.repository.ChatRepositoryImpl
 import com.micaserito.app.databinding.FragmentChatInboxBinding
 import kotlinx.coroutines.launch
@@ -30,7 +31,7 @@ class ChatInboxFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val repo = ChatRepositoryImpl()
+        val repo = ChatRepositoryImpl(NetworkModule.apiService)
         val factory = object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
@@ -41,7 +42,7 @@ class ChatInboxFragment : Fragment() {
 
         adapter = ChatAdapter { preview ->
             // Navegar a detalle: implementar navegación en tu app
-            // Ejemplo: findNavController().navigate(R.id.action_to_chatDetail, bundleOf("chatId" to preview.id_chat.toString()))
+            // Ejemplo: findNavController().navigate(R.id.action_to_chatDetail, bundleOf("chatId" to preview.idChat.toString()))
         }
         binding.rvChats.layoutManager = LinearLayoutManager(requireContext())
         binding.rvChats.adapter = adapter

@@ -47,7 +47,7 @@ class MockApiService : ApiService {
         page: Int
     ): Response<HomeFeedResponse> {
         delay(500) // Búsqueda más rápida
-        return Response.success(MockData.getDiscoverResults(filter))
+        return Response.success(MockData.getDiscoverResults(filter, categoryId))
     }
 
     override suspend fun getCategories(): Response<List<CategoriaNegocio>> {

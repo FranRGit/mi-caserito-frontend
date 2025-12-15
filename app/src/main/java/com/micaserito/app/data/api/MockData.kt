@@ -19,31 +19,15 @@ import com.micaserito.app.data.model.BusinessInfo
 
 object MockData {
 
-    // --- 0. AUTH (LOGIN & REGISTRO — SIMULACIÓN) ---
-
-    // Lista mutable para simular usuarios ya registrados
-    private val usuariosRegistrados = mutableListOf(
-        User(
-            id = 1,
-            email = "cliente@demo.com",
-            tipoUsuario = "cliente",
-            token = "token_cliente_123"
-        ),
-        User(
-            id = 2,
-            email = "vendedor@demo.com",
-            tipoUsuario = "vendedor",
-            token = "token_vendedor_123"
-        )
+    private val usuariosRegistrados = mutableListOf<User>(
+        User(1, "cliente@demo.com", "cliente", "token_cliente_123"),
+        User(2, "vendedor@demo.com", "vendedor", "token_vendedor_123")
     )
 
-    /** SIMULAR LOGIN */
     fun loginFake(email: String, password: String): User? {
-        // No validamos password porque es mock
         return usuariosRegistrados.firstOrNull { it.email == email }
     }
 
-    /** SIMULAR REGISTRO BÁSICO */
     fun registrarUsuario(request: RegisterRequest): Boolean {
         val nuevo = User(
             id = usuariosRegistrados.size + 1,
@@ -51,26 +35,26 @@ object MockData {
             tipoUsuario = request.tipoUsuario,
             token = "token_mock_${request.email}"
         )
-
         usuariosRegistrados.add(nuevo)
         return true
     }
 
-    /** SIMULAR REGISTRO DE NEGOCIO */
     fun registrarNegocio(business: BusinessInfo): Boolean {
-        // Aquí solo simulamos que fue exitoso
         return true
     }
 
+    private val myTickets = mutableListOf<TicketSummary>(
+        TicketSummary(101, "ORD-8821", "Bodega Don Pepe", 54.50, "pendiente", "2023-10-25"),
+        TicketSummary(102, "ORD-7743", "Farmacia Salud", 12.00, "completado", "2023-10-20"),
+        TicketSummary(103, "ORD-1120", "Pollería El Sabroso", 89.90, "cancelado", "2023-10-15")
+    )
 
-    // --- 1. USUARIO / AUTH ---
     fun getFakeSession() = UserSessionData(
         idUsuario = 10,
-        tipoUsuario = "cliente", // Cambiar a "vendedor" para probar esa vista
+        tipoUsuario = "cliente",
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake.token"
     )
 
-    // --- 2. HOME & DISCOVER ---
     fun getCategories(): List<CategoriaNegocio> {
         return listOf(
             CategoriaNegocio(1, "Bodegas"),
@@ -82,16 +66,16 @@ object MockData {
     }
 
     fun getHomeFeed(): HomeFeedResponse {
-        // Items de ejemplo
         val prod1 = FeedItem(
             type = "product",
             details = ItemDetails(
                 idProducto = 101,
                 nombreProducto = "Papa Amarilla (Kilo)",
                 precioBase = 6.50,
-                imageUrl = "https://i.imgur.com/M9k7qj9.jpg", // Placeholder de comida
+                imageUrl = "https://i.imgur.com/M9k7qj9.jpg",
                 nombreNegocio = "Verdulería Doña Juana",
-                ciudad = "Lima"
+                ciudad = "Lima",
+                categoria = "Verdulerías"
             )
         )
 
@@ -103,7 +87,8 @@ object MockData {
                 precioBase = 22.00,
                 imageUrl = "https://i.imgur.com/8u1D5sR.jpg",
                 nombreNegocio = "Bodega El Chino",
-                ciudad = "Pueblo Libre"
+                ciudad = "Pueblo Libre",
+                categoria = "Bodegas"
             )
         )
 
@@ -119,7 +104,6 @@ object MockData {
             )
         )
 
-        // Secciones para el Home
         val sectionProducts = FeedSection(
             type = "featured_products",
             title = "Ofertas cerca de ti",
@@ -139,34 +123,30 @@ object MockData {
         )
     }
 
-    fun getDiscoverResults(filter: String): HomeFeedResponse {
-        // Reutilizamos items para simular búsqueda
-        val negocioItem = FeedItem(
-            type = "business",
-            details = ItemDetails(
-                idNegocio = 99,
-                nombreNegocio = "Bodega Don Pepe",
-                calificacionPromedio = 4.8,
-                direccion = "Av. Brasil 1234",
-                profileUrl = "https://i.pravatar.cc/150?img=33",
-                ciudad = "Jesús María"
-            )
-        )
+    fun getDiscoverResults(filter: String, categoryId: Int?): HomeFeedResponse {
+        val allItems = getHomeFeed().data.sections!!.flatMap { it.items }
+        var results = allItems
 
-        val listaItems = when (filter) {
-            "business" -> listOf(negocioItem, negocioItem)
-            "product" -> listOf(getHomeFeed().data.sections!![0].items[0])
-            else -> listOf(negocioItem, getHomeFeed().data.sections!![0].items[0]) // Mixto
+        if (categoryId != null) {
+            val categoryName = getCategories().find { it.id == categoryId }?.nombre
+            if (categoryName != null) {
+                results = results.filter { it.details.categoria == categoryName }
+            }
+        }
+
+        results = when (filter) {
+            "business" -> results.filter { it.type == "business" }
+            "product" -> results.filter { it.type == "product" }
+            else -> results
         }
 
         return HomeFeedResponse(
             status = "success",
-            data = FeedData(items = listaItems),
+            data = FeedData(items = results),
             pagination = PaginationMeta(1, 1, false)
         )
     }
 
-    // --- 3. PERFIL NEGOCIO ---
     fun getNegocioProfile(id: Int): NegocioProfile {
         return NegocioProfile(
             idNegocio = id,
@@ -181,7 +161,6 @@ object MockData {
     }
 
     fun getBusinessProducts(): List<ItemDetails> {
-        // Solo detalles de producto para el catálogo
         return listOf(
             ItemDetails(
                 idProducto = 201,
@@ -204,7 +183,6 @@ object MockData {
         )
     }
 
-    // --- 4. CHAT ---
     fun getChatList(): List<ChatSummary> {
         return listOf(
             ChatSummary(
@@ -235,7 +213,6 @@ object MockData {
     }
 
     fun getChatMessages(): List<ChatMessage> {
-        // idUsuario 10 = YO, idUsuario 99 = EL OTRO
         return listOf(
             ChatMessage(1, 99, "Hola casero, ¿tienes gas?", "2023-10-25T14:00:00Z", true),
             ChatMessage(2, 10, "Sí, el balón de 10kg está 45 soles", "2023-10-25T14:05:00Z", true),
@@ -244,13 +221,12 @@ object MockData {
         )
     }
 
-    // --- 5. USUARIO (TICKETS & SECURITY) ---
     fun getMyTickets(): List<TicketSummary> {
-        return listOf(
-            TicketSummary(101, "ORD-8821", "Bodega Don Pepe", 54.50, "pendiente", "2023-10-25"),
-            TicketSummary(102, "ORD-7743", "Farmacia Salud", 12.00, "completado", "2023-10-20"),
-            TicketSummary(103, "ORD-1120", "Pollería El Sabroso", 89.90, "cancelado", "2023-10-15")
-        )
+        return myTickets
+    }
+
+    fun addMyTicket(ticket: TicketSummary) {
+        myTickets.add(0, ticket)
     }
 
     fun getReports(tipo: String): List<ReportSummary> {
@@ -274,7 +250,6 @@ object MockData {
                 )
             )
         } else {
-            // Recibidos (en contra)
             return listOf(
                 ReportSummary(
                     5,

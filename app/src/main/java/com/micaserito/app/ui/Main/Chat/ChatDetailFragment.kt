@@ -11,6 +11,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.data.api.MockData
+import com.micaserito.app.data.network.NetworkModule
 import com.micaserito.app.data.repository.ChatRepositoryImpl
 import com.micaserito.app.databinding.FragmentChatDetailBinding
 import kotlinx.coroutines.launch
@@ -35,7 +36,7 @@ class ChatDetailFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val repo = ChatRepositoryImpl()
+        val repo = ChatRepositoryImpl(NetworkModule.apiService)
         val factory = object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")

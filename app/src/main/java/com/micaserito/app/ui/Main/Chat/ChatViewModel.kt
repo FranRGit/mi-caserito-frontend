@@ -3,11 +3,12 @@ package com.micaserito.app.ui.main.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.micaserito.app.data.api.MockData
-import com.micaserito.app.data.model.ChatPreview
-import com.micaserito.app.data.model.Message
+import com.micaserito.app.data.model.ChatMessage
+import com.micaserito.app.data.model.ChatSummary
 import com.micaserito.app.data.repository.ChatRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ChatViewModel(
@@ -15,11 +16,11 @@ class ChatViewModel(
     private val miIdActual: Int = MockData.getFakeSession().idUsuario
 ) : ViewModel() {
 
-    private val _chatsState = MutableStateFlow<List<ChatPreview>>(emptyList())
-    val chatsState: StateFlow<List<ChatPreview>> = _chatsState
+    private val _chatsState = MutableStateFlow<List<ChatSummary>>(emptyList())
+    val chatsState: StateFlow<List<ChatSummary>> = _chatsState
 
-    private val _messagesState = MutableStateFlow<List<Message>>(emptyList())
-    val messagesState: StateFlow<List<Message>> = _messagesState
+    private val _messagesState = MutableStateFlow<List<ChatMessage>>(emptyList())
+    val messagesState: StateFlow<List<ChatMessage>> = _messagesState
 
     private var currentChatId: String? = null
     private var currentPage = 1
@@ -33,10 +34,6 @@ class ChatViewModel(
         }
     }
 
-    /**
-     * page 1 -> últimos mensajes (reemplaza).
-     * page >1 -> mensajes más antiguos (se prepende al inicio).
-     */
     fun loadMessages(chatId: String, page: Int = 1) {
         if (isLoadingPage) return
         isLoadingPage = true
@@ -45,8 +42,7 @@ class ChatViewModel(
             repository.getMessages(chatId, page).collect { nuevos ->
                 val current = _messagesState.value
                 _messagesState.value = if (page > 1) {
-                    // prepend antiguos, evitar duplicados
-                    (nuevos + current).distinctBy { it.id_mensaje }
+                    (nuevos + current).distinctBy { it.idMensaje }
                 } else {
                     nuevos
                 }
@@ -56,25 +52,21 @@ class ChatViewModel(
         }
     }
 
-    /**
-     * Envío optimista: añade mensaje localmente y luego recoge la respuesta del repo.
-     */
     fun sendMessage(content: String, onResult: (Boolean) -> Unit = {}) {
         val chatId = currentChatId ?: return onResult(false)
         viewModelScope.launch {
             try {
-                val optimistic = Message(
-                    id_mensaje = (-System.currentTimeMillis()).toInt(),
-                    id_chat = chatId.toIntOrNull() ?: 0,
-                    id_emisor = miIdActual,
+                val optimistic = ChatMessage(
+                    idMensaje = (-System.currentTimeMillis()).toInt(),
+                    idUsuario = miIdActual,
                     contenido = content,
-                    fecha_envio = "Ahora"
+                    fechaEnvio = "Ahora",
+                    leido = false
                 )
                 _messagesState.value = _messagesState.value + optimistic
 
                 repository.sendMessage(chatId, content).collect { returned ->
-                    // Añadir respuesta real evitando duplicados por id
-                    _messagesState.value = (_messagesState.value + returned).distinctBy { it.id_mensaje }
+                    _messagesState.value = (_messagesState.value + returned).distinctBy { it.idMensaje }
                     onResult(true)
                 }
             } catch (e: Exception) {

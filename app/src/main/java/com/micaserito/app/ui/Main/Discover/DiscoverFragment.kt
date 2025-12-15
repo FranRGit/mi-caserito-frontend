@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
 import com.micaserito.app.R
 import com.micaserito.app.data.api.MockData
+import com.micaserito.app.data.model.CategoriaNegocio
 
 class DiscoverFragment : Fragment(R.layout.fragment_discover) {
 
@@ -23,8 +24,9 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
     private var isLoading = false
     private var currentPage = 1
     private var currentFilter = "todo" // todo, business, product
-    private var currentCategory: String? = null // Categoría seleccionada
+    private var currentCategoryId: Int? = null // ID de la categoría seleccionada
     private var searchQuery = ""
+    private val allCategories = MockData.getCategories()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -49,11 +51,10 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
         // Adapter de Categorías
         val rvCategories = view.findViewById<RecyclerView>(R.id.rvCategories)
         rvCategories.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        val categoryList = MockData.getCategories().map { it.nombre }
         
-        categoriesAdapter = CategoriesAdapter(categoryList) { selectedCategory ->
+        categoriesAdapter = CategoriesAdapter(allCategories.map { it.nombre }) { selectedCategoryName ->
             // --- Lógica de Clic en Categoría ---
-            currentCategory = selectedCategory
+            currentCategoryId = allCategories.find { it.nombre == selectedCategoryName }?.id
             resetAndLoad()
         }
         rvCategories.adapter = categoriesAdapter
@@ -65,7 +66,7 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
         searchBar.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 searchQuery = v.text.toString()
-                currentCategory = null // Limpiar filtro de categoría al buscar
+                currentCategoryId = null // Limpiar filtro de categoría al buscar
                 resetAndLoad()
                 true
             } else { false }
@@ -100,7 +101,7 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
             view?.findViewById<View>(R.id.progressBarDiscover)?.visibility = View.GONE
 
             // --- LLAMADA A MOCKDATA CON FILTROS ---
-            val response = MockData.getDiscoverResults(currentFilter, currentCategory)
+            val response = MockData.getDiscoverResults(currentFilter, currentCategoryId)
             val items = response.data.items ?: emptyList()
 
             if (items.isNotEmpty()) {
