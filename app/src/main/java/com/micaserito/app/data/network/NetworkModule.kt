@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkModule {
 
-    private const val IS_MOCK_MODE = true    // 🔴 CAMBIAR A 'FALSE' CUANDO EL BACKEND ESTÉ LISTO
+    private const val IS_MOCK_MODE = false    // 🔴 CAMBIAR A 'FALSE' CUANDO EL BACKEND ESTÉ LISTO
 
 
     private const val BASE_URL = "http://10.0.2.2:3000/api/v1/"

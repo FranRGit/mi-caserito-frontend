@@ -14,13 +14,14 @@
         android:id="@+id/et_search_input"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="Buscar producto o negocio"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
         android:drawableStart="@drawable/ic_search"
         android:drawablePadding="8dp"
+        android:hint="Buscar producto o negocio"
         android:inputType="text"
         android:maxLines="1"
-        android:background="@android:color/transparent"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         tools:ignore="RtlSymmetry" />
 </androidx.cardview.widget.CardView>
