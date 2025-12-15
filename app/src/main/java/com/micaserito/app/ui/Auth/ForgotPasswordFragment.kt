@@ -25,12 +25,12 @@ class ForgotPasswordFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔙 Botón atrás
+        // Botón atrás
         binding.btnBackForgot.setOnClickListener {
             findNavController().popBackStack()
         }
 
-        // 🚀 Botón para obtener OTP
+        // Botón para obtener OTP
         binding.btnGetOtp.setOnClickListener {
             val email = binding.etForgotEmail.text.toString().trim()
 

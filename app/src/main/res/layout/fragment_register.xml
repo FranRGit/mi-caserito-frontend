@@ -14,6 +14,7 @@
         android:paddingTop="40dp"
         android:paddingBottom="24dp">
 
+        <!-- Back -->
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="40dp"
@@ -22,10 +23,9 @@
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/white"
             android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
             android:layout_marginBottom="16dp"/>
 
+        <!-- Title -->
         <TextView
             android:id="@+id/tvRegisterTitle"
             android:layout_width="wrap_content"
@@ -35,28 +35,17 @@
             android:textSize="28sp"
             android:textColor="@color/black"
             android:layout_marginBottom="24dp"
-            android:letterSpacing="-0.02" />
+            android:letterSpacing="-0.02"/>
 
         <!-- Tipo de Usuario -->
-        <LinearLayout
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="6dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tipo de Usuario"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#FF0000"/>
-        </LinearLayout>
+            android:text="Tipo de Usuario"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -69,9 +58,7 @@
             <Spinner
                 android:id="@+id/spUserType"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:spinnerMode="dropdown"
-                android:prompt="@string/seleccione"/>
+                android:layout_height="match_parent"/>
         </LinearLayout>
 
         <!-- Nombres / Apellidos -->
@@ -79,109 +66,42 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:baselineAligned="false"
             android:layout_marginBottom="16dp">
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/etName"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginEnd="8dp">
+                android:hint="Nombres"
+                android:background="@drawable/bg_input_field"
+                android:backgroundTint="#F5F5F5"
+                android:paddingHorizontal="12dp"/>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="6dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Nombres"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"/>
+            <View
+                android:layout_width="8dp"
+                android:layout_height="1dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#FF0000"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/etName"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:background="@drawable/bg_input_field"
-                    android:backgroundTint="#F5F5F5"
-                    android:paddingHorizontal="12dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-                    android:inputType="textPersonName"/>
-            </LinearLayout>
-
-            <LinearLayout
+            <EditText
+                android:id="@+id/etLastName"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="8dp">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="6dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Apellidos"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#FF0000"
-                        android:textSize="13sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/etLastName"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:background="@drawable/bg_input_field"
-                    android:backgroundTint="#F5F5F5"
-                    android:paddingHorizontal="12dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-                    android:inputType="textPersonName"/>
-            </LinearLayout>
+                android:hint="Apellidos"
+                android:background="@drawable/bg_input_field"
+                android:backgroundTint="#F5F5F5"
+                android:paddingHorizontal="12dp"/>
         </LinearLayout>
 
         <!-- DNI -->
-        <LinearLayout
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="6dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="DNI"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#FF0000"
-                android:textSize="13sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
+            android:text="DNI"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp"/>
 
         <LinearLayout
             android:id="@+id/btnUploadDni"
@@ -190,46 +110,24 @@
             android:background="@drawable/bg_input_field"
             android:backgroundTint="#F5F5F5"
             android:gravity="center"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="horizontal"
             android:layout_marginBottom="16dp">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_upload"
-                app:tint="#BDBDBD"
-                android:layout_marginEnd="8dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cargar imagen"
-                android:textColor="#9E9E9E"
-                android:textSize="14sp"/>
+                android:textColor="#9E9E9E"/>
         </LinearLayout>
 
         <!-- Género -->
-        <LinearLayout
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="6dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Género"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#FF0000"
-                android:textSize="13sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
+            android:text="Género"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -242,31 +140,18 @@
             <Spinner
                 android:id="@+id/spGender"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:spinnerMode="dropdown"
-                android:prompt="@string/seleccione"/>
+                android:layout_height="match_parent"/>
         </LinearLayout>
 
         <!-- Foto de Perfil -->
-        <LinearLayout
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="6dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Foto de Perfil"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#FF0000"
-                android:textSize="13sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
+            android:text="Foto de Perfil"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp"/>
 
         <LinearLayout
             android:id="@+id/btnUploadPhoto"
@@ -275,63 +160,53 @@
             android:background="@drawable/bg_input_field"
             android:backgroundTint="#F5F5F5"
             android:gravity="center"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="horizontal"
             android:layout_marginBottom="16dp">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_upload"
-                app:tint="#BDBDBD"
-                android:layout_marginEnd="8dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cargar imagen"
-                android:textColor="#9E9E9E"
-                android:textSize="14sp"/>
+                android:textColor="#9E9E9E"/>
         </LinearLayout>
 
-        <!-- Ubicación -->
-        <LinearLayout
+        <!-- Ciudad de Residencia -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="6dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ubicación"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#FF0000"
-                android:textSize="13sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
+            android:text="Ciudad de Residencia"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp"/>
 
         <LinearLayout
+            android:id="@+id/btnSelectLocation"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/bg_input_field"
             android:backgroundTint="#F5F5F5"
-            android:paddingHorizontal="4dp"
-            android:layout_marginBottom="32dp">
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="32dp"
+            android:clickable="true">
 
-            <Spinner
-                android:id="@+id/spLocation"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:spinnerMode="dropdown"
-                android:prompt="@string/seleccione"/>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_location"
+                android:tint="#9E9E9E"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/tvLocationSelected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seleccionar ubicación en el mapa"
+                android:textColor="#9E9E9E"
+                android:textSize="14sp"/>
         </LinearLayout>
 
+        <!-- Botón -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNext"
             android:layout_width="280dp"
@@ -339,9 +214,6 @@
             android:layout_gravity="center_horizontal"
             android:text="Siguiente"
             android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
             app:cornerRadius="10dp"
             app:backgroundTint="@color/primary_color"/>
 

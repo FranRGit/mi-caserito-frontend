@@ -24,7 +24,6 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 🔴 CAMBIO CLAVE:
         // Limpia la sesión al iniciar la app (NO sesión persistente)
         SessionManager.clearSession(this)
 
