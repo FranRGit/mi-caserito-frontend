@@ -13,8 +13,55 @@ import com.micaserito.app.data.model.PaginationMeta
 import com.micaserito.app.data.model.ReportSummary
 import com.micaserito.app.data.model.TicketSummary
 import com.micaserito.app.data.model.UserSessionData
+import com.micaserito.app.data.model.User
+import com.micaserito.app.data.model.RegisterRequest
+import com.micaserito.app.data.model.BusinessInfo
 
 object MockData {
+
+    // --- 0. AUTH (LOGIN & REGISTRO — SIMULACIÓN) ---
+
+    // Lista mutable para simular usuarios ya registrados
+    private val usuariosRegistrados = mutableListOf(
+        User(
+            id = 1,
+            email = "cliente@demo.com",
+            tipoUsuario = "cliente",
+            token = "token_cliente_123"
+        ),
+        User(
+            id = 2,
+            email = "vendedor@demo.com",
+            tipoUsuario = "vendedor",
+            token = "token_vendedor_123"
+        )
+    )
+
+    /** SIMULAR LOGIN */
+    fun loginFake(email: String, password: String): User? {
+        // No validamos password porque es mock
+        return usuariosRegistrados.firstOrNull { it.email == email }
+    }
+
+    /** SIMULAR REGISTRO BÁSICO */
+    fun registrarUsuario(request: RegisterRequest): Boolean {
+        val nuevo = User(
+            id = usuariosRegistrados.size + 1,
+            email = request.email,
+            tipoUsuario = request.tipoUsuario,
+            token = "token_mock_${request.email}"
+        )
+
+        usuariosRegistrados.add(nuevo)
+        return true
+    }
+
+    /** SIMULAR REGISTRO DE NEGOCIO */
+    fun registrarNegocio(business: BusinessInfo): Boolean {
+        // Aquí solo simulamos que fue exitoso
+        return true
+    }
+
 
     // --- 1. USUARIO / AUTH ---
     fun getFakeSession() = UserSessionData(
