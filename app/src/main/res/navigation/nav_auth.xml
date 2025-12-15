@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_auth"
+    app:startDestination="@id/loginFragment">
+
+    <!-- LOGIN -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.micaserito.app.ui.Auth.LoginFragment"
+        android:label="Login">
+
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+
+        <action
+            android:id="@+id/action_login_to_forgot"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
+
+    <!-- REGISTRO USUARIO -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.micaserito.app.ui.Auth.RegisterFragment"
+        android:label="Register">
+
+        <!-- Enviamos el tipo de usuario seleccionado -->
+        <argument
+            android:name="tipoUsuario"
+            app:argType="string"
+            android:defaultValue="cliente" />
+
+        <action
+            android:id="@+id/action_register_to_business"
+            app:destination="@id/registerBusinessFragment" />
+
+        <action
+            android:id="@+id/action_register_to_confirm"
+            app:destination="@id/registerConfirmFragment" />
+    </fragment>
+
+    <!-- REGISTRO DEL NEGOCIO -->
+    <fragment
+        android:id="@+id/registerBusinessFragment"
+        android:name="com.micaserito.app.ui.Auth.RegisterBusinessFragment"
+        android:label="Business">
+
+        <!-- Saber si debe mostrar RUC -->
+        <argument
+            android:name="requireRuc"
+            app:argType="boolean"
+            android:defaultValue="false" />
+
+        <action
+            android:id="@+id/action_business_to_confirm"
+            app:destination="@id/registerConfirmFragment" />
+    </fragment>
+
+    <!-- CONFIRMAR REGISTRO (crear contraseña) -->
+    <fragment
+        android:id="@+id/registerConfirmFragment"
+        android:name="com.micaserito.app.ui.Auth.RegisterConfirmFragment"
+        android:label="Confirm" >
+
+        <action
+            android:id="@+id/action_confirm_to_login"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <!-- OLVIDÉ CONTRASEÑA -->
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.micaserito.app.ui.Auth.ForgotPasswordFragment"
+        android:label="ForgotPassword" />
+</navigation>

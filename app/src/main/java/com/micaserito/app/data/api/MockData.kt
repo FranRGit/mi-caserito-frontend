@@ -13,11 +13,19 @@ import com.micaserito.app.data.model.PaginationMeta
 import com.micaserito.app.data.model.ReportSummary
 import com.micaserito.app.data.model.TicketSummary
 import com.micaserito.app.data.model.UserSessionData
+import com.micaserito.app.data.model.User
+import com.micaserito.app.data.model.RegisterRequest
+import com.micaserito.app.data.model.BusinessInfo
 
 
 object MockData {
 
-    // --- Base de Datos en Memoria ---
+    // --- Base de Datos en Memoria (de HEAD) ---
+
+    private val usuariosRegistrados = mutableListOf<User>(
+        User(1, "cliente@demo.com", "cliente", "token_cliente_123"),
+        User(2, "vendedor@demo.com", "vendedor", "token_vendedor_123")
+    )
 
     // 1. Lista de TODOS los ítems (Con idNegocio añadido para la lógica de permisos)
     private val allItems = listOf(
@@ -39,7 +47,7 @@ object MockData {
         FeedItem("post", ItemDetails(idPost = 501, nombreNegocio = "Panadería El Buen Sabor", profileUrl = "https://i.pravatar.cc/150?img=12", fechaCreacion = "hace 2 horas", descripcion = "¡Salieron los panes calientes! 🥖🥖", imageUrl = "https://i.imgur.com/L8a1qj9.jpg"))
     )
 
-    // 2. Datos para reportes (Consolidado de ambas listas)
+    // 2. Datos para reportes (de HEAD)
     private val sentReports = listOf(
         ReportSummary(1, "Problema", "El producto llegó roto", "Contra: Bodega Mala Fama", "Pendiente", "12 Oct 2025"),
         ReportSummary(2, "Estafa", "Nunca enviaron el pedido", "Contra: Tienda Fantasma", "En revisión", "11 Oct 2025"),
@@ -53,41 +61,68 @@ object MockData {
         ReportSummary(13, "Sanción", "Cuenta suspendida por 30 días", "Motivo: Reincidencia en faltas", "Activa", "12 Oct 2025")
     )
 
-    // 3. Almacén mutable para tickets (Usamos la inicialización detallada de la primera versión)
+    // 3. Tickets (de HEAD)
     private val _myTickets: MutableList<TicketSummary> = mutableListOf(
         TicketSummary(101, "ORD-8821", "Bodega Don Pepe", 54.50, "pendiente", "2023-10-25"),
         TicketSummary(102, "ORD-7743", "Farmacia Salud", 12.00, "completado", "2023-10-20"),
         TicketSummary(103, "ORD-1120", "Pollería El Sabroso", 89.90, "cancelado", "2023-10-15")
     )
 
-    // --- Funciones de Utilidad y Auth ---
+    // --- Funciones de Utilidad y Auth (Fusionadas) ---
 
     // Permite que los Repositorios obtengan la instancia del MockService
     fun getMockService(): MockApiService {
-        // Implementación mínima para evitar errores de compilación si no está definida en el contexto
         return MockApiService()
     }
 
-    // Usamos la simulación de vendedor (idUsuario=10)
+    // Usamos la simulación de vendedor (idUsuario=10) para pruebas de permisos
     fun getFakeSession() = UserSessionData(
         idUsuario = 10,
-        tipoUsuario = "vendedor", // Para probar las opciones de Editar/Eliminar
+        tipoUsuario = "vendedor",
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake.token"
     )
+
+    // Funciones de Auth (de feature/alexander_cambios-2)
+    fun loginFake(email: String, password: String): User? {
+        return usuariosRegistrados.firstOrNull { it.email == email }
+    }
+
+    fun registrarUsuario(request: RegisterRequest): Boolean {
+        val nuevo = User(
+            id = usuariosRegistrados.size + 1,
+            email = request.email,
+            tipoUsuario = request.tipoUsuario,
+            token = "token_mock_${request.email}"
+        )
+        usuariosRegistrados.add(nuevo)
+        return true
+    }
+
+    fun registrarNegocio(business: BusinessInfo): Boolean {
+        return true
+    }
 
     // --- 2. HOME & DISCOVER ---
 
     fun getCategories(): List<CategoriaNegocio> {
-        // Usamos la lista de categorías extendida y más moderna
+        // Usamos la lista de categorías extendida de feature/alexander_cambios-2
         return listOf(
-            CategoriaNegocio(1, "Alimentos"), CategoriaNegocio(2, "Ropa"), CategoriaNegocio(3, "Campo"),
-            CategoriaNegocio(4, "Belleza"), CategoriaNegocio(5, "Hogar"), CategoriaNegocio(6, "Tecnología")
+            CategoriaNegocio(1, "Bodegas"),
+            CategoriaNegocio(2, "Verdulerías"),
+            CategoriaNegocio(3, "Ferreterías"),
+            CategoriaNegocio(4, "Farmacias"),
+            CategoriaNegocio(5, "Restaurantes"),
+            CategoriaNegocio(6, "Alimentos"), // Añadidos para ser consistentes con allItems
+            CategoriaNegocio(7, "Ropa"),
+            CategoriaNegocio(8, "Campo"),
+            CategoriaNegocio(9, "Belleza"),
+            CategoriaNegocio(10, "Hogar")
         )
     }
 
     fun getHomeFeed(): HomeFeedResponse {
-        // Reutilizamos items de allItems para el feed
-        val products = allItems.filter { it.type == "product" }.take(2)
+        // Reutilizamos items de allItems para el feed (de HEAD)
+        val products = allItems.filter { it.type == "product" }.take(3)
         val posts = allItems.filter { it.type == "post" }.take(1)
 
         val sectionProducts = FeedSection(
@@ -109,21 +144,24 @@ object MockData {
         )
     }
 
-    // FUNCIÓN para manejar los filtros de tipo, categoría y búsqueda. (Mejorada para usar allItems)
-    fun getDiscoverResults(filter: String, category: String? = null, query: String = ""): HomeFeedResponse {
+    // FUNCIÓN para manejar los filtros de tipo, categoría y búsqueda. (Mejorada de HEAD)
+    fun getDiscoverResults(filter: String, categoryId: Int? = null, query: String = ""): HomeFeedResponse {
 
         var results = allItems // Empezamos con todos los items
 
         // 1. Filtrar por Tipo (product, business, or all)
         results = when (filter) {
-            "product" -> results.filter { it.type == "product" }
-            "business" -> results.filter { it.type == "business" }
-            else -> results
+            "negocios" -> results.filter { it.type == "business" }
+            "productos" -> results.filter { it.type == "product" }
+            else -> results.filter { it.type != "post" } // Excluimos posts para Discover general
         }
 
         // 2. Filtrar por Categoría
-        if (category != null) {
-            results = results.filter { it.details.categoria == category }
+        if (categoryId != null) {
+            val categoryName = getCategories().find { it.id == categoryId }?.nombre
+            if (categoryName != null) {
+                results = results.filter { it.details.categoria == categoryName }
+            }
         }
 
         // 3. Filtrar por Búsqueda (opcional)
@@ -143,7 +181,6 @@ object MockData {
 
     // --- 3. PERFIL NEGOCIO ---
     fun getNegocioProfile(id: Int): NegocioProfile {
-        // Usamos la versión detallada de NegocioProfile
         return NegocioProfile(
             idNegocio = id,
             nombreNegocio = "Bodega Don Pepe",
@@ -156,7 +193,7 @@ object MockData {
         )
     }
 
-    // Ahora filtramos desde allItems por ID de negocio
+    // Ahora filtramos desde allItems por ID de negocio (de HEAD)
     fun getBusinessProducts(negocioId: Int): List<ItemDetails> {
         return allItems
             .filter { it.type == "product" && it.details.idNegocio == negocioId }
@@ -165,7 +202,6 @@ object MockData {
 
     // --- 4. CHAT ---
     fun getChatList(): List<ChatSummary> {
-        // Usamos la versión detallada
         return listOf(
             ChatSummary(1, "Bodega Don Pepe", "https://i.pravatar.cc/150?img=33", "Ya salió tu pedido, llega en 5 min", 2, "2023-10-25T14:30:00Z"),
             ChatSummary(2, "Ferretería El Tornillo", "https://i.pravatar.cc/150?img=11", "Sí tenemos stock de pintura blanca", 0, "2023-10-24T09:15:00Z"),
@@ -174,7 +210,6 @@ object MockData {
     }
 
     fun getChatMessages(): List<ChatMessage> {
-        // Usamos la versión detallada
         return listOf(
             ChatMessage(1, 99, "Hola casero, ¿tienes gas?", "2023-10-25T14:00:00Z", true),
             ChatMessage(2, 10, "Sí, el balón de 10kg está 45 soles", "2023-10-25T14:05:00Z", true),
@@ -195,6 +230,10 @@ object MockData {
     }
 
     fun getReports(tipo: String): List<ReportSummary> {
-        return if (tipo == "sent") sentReports else receivedReports
+        return if (tipo == "sent") {
+            sentReports // Usamos la lista detallada de HEAD
+        } else {
+            receivedReports // Usamos la lista detallada de HEAD
+        }
     }
 }

@@ -48,12 +48,11 @@ class MockApiService : ApiService {
     ): Response<HomeFeedResponse> {
         delay(500) // Búsqueda más rápida
 
-        val categoryName = categoryId?.toString() // Convertimos el ID a String para el Mock
-
+        // Usamos MockData fusionado que acepta Int? para categoryId
         return Response.success(
             MockData.getDiscoverResults(
                 filter = filter,
-                category = categoryName, // Pasamos la categoría (convertida o nula)
+                categoryId = categoryId, // Pasamos el ID directamente como Int?
                 query = query ?: ""       // Pasamos la query (o string vacío si es nula)
             )
         )

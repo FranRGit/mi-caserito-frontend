@@ -15,116 +15,111 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
-import com.micaserito.app.ui.Main.MainActivity
 import com.micaserito.app.R
+import com.micaserito.app.data.Local.SessionManager
 import com.micaserito.app.ui.Auth.AuthActivity
 
 class SplashActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 🔴 CAMBIO CLAVE:
+        // Limpia la sesión al iniciar la app (NO sesión persistente)
+        SessionManager.clearSession(this)
+
         setContentView(R.layout.activity_splash)
 
-        //Referencias
+        // Referencias
         val tvMi = findViewById<TextView>(R.id.tvMi)
         val tvCaserito = findViewById<TextView>(R.id.tvCaserito)
         val ivCart = findViewById<ImageView>(R.id.ivCart)
         val btnIniciar = findViewById<MaterialButton>(R.id.btnIniciar)
 
-        // Carrito: Empieza lejos y un poco inclinado
+        // Animaciones iniciales
         ivCart.translationX = -800f
         ivCart.alpha = 0f
         ivCart.rotation = -20f
 
-        // Texto: Empieza desplazado
         tvMi.translationX = -400f
         tvMi.alpha = 0f
         tvCaserito.translationX = -400f
         tvCaserito.alpha = 0f
 
-        // Botón: Invisible y pequeño
         btnIniciar.alpha = 0f
         btnIniciar.scaleX = 0f
         btnIniciar.scaleY = 0f
-        btnIniciar.rotation = -360f // Dará una vuelta completa
+        btnIniciar.rotation = -360f
 
-        // ENTRADA DEL CARRITO
         ivCart.animate()
             .translationX(0f)
             .alpha(1f)
-            .rotation(0f) // Se endereza al llegar
-            .setInterpolator(DecelerateInterpolator()) // Frena suave al final
+            .rotation(0f)
+            .setInterpolator(DecelerateInterpolator())
             .setDuration(1200)
             .start()
 
-        // ENTRADA DEL TEXTO
-        val textDuration = 1000L
-        val textDelay = 400L
-
         tvMi.animate()
-            .translationX(0f).alpha(1f)
-            .setStartDelay(textDelay)
-            .setDuration(textDuration)
-            .setInterpolator(DecelerateInterpolator())
+            .translationX(0f)
+            .alpha(1f)
+            .setStartDelay(400)
+            .setDuration(1000)
             .start()
 
         tvCaserito.animate()
-            .translationX(0f).alpha(1f)
-            .setStartDelay(textDelay + 100) // "Caserito" sale un pelín después de "Mi"
-            .setDuration(textDuration)
-            .setInterpolator(DecelerateInterpolator())
+            .translationX(0f)
+            .alpha(1f)
+            .setStartDelay(500)
+            .setDuration(1000)
             .withEndAction {
                 btnIniciar.animate()
-                    .scaleX(1f).scaleY(1f).alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
                     .rotation(0f)
-                    .setInterpolator(OvershootInterpolator(1.2f)) // Rebote elegante
+                    .setInterpolator(OvershootInterpolator(1.2f))
                     .setDuration(800)
                     .withEndAction {
-                        // AQUÍ TERMINA TODA LA INTRO:
-
-                        // 1. Vibrar para avisar que está listo
                         vibrarDispositivo(100)
-
-                        // 2. Iniciar animación de "Latido" para pedir clic
                         iniciarLatido(btnIniciar)
                     }
                     .start()
-            }.start()
+            }
+            .start()
+
+        // Ir a Login / Registro
         btnIniciar.setOnClickListener {
-            // Cancelamos el latido para que no interfiera
             btnIniciar.clearAnimation()
-            // Vibración corta de confirmación
             vibrarDispositivo(50)
-            // Animación de salida rápida
-            btnIniciar.animate()
-                .scaleX(0.8f).scaleY(0.8f) // Se encoge al presionar
-                .setDuration(100)
-                .withEndAction {
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }
-                .start()
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
         }
     }
-    // Animación infinita
+
     private fun iniciarLatido(view: View) {
-        val scaleDown = ObjectAnimator.ofPropertyValuesHolder(
+        val animator = ObjectAnimator.ofPropertyValuesHolder(
             view,
-            PropertyValuesHolder.ofFloat("scaleX", 1.1f), // Crece un 10%
+            PropertyValuesHolder.ofFloat("scaleX", 1.1f),
             PropertyValuesHolder.ofFloat("scaleY", 1.1f)
         )
-        scaleDown.duration = 800 // Velocidad del latido
-        scaleDown.repeatCount = ObjectAnimator.INFINITE // Nunca para
-        scaleDown.repeatMode = ObjectAnimator.REVERSE // Crece y decrece
-        scaleDown.start()
+        animator.duration = 800
+        animator.repeatCount = ObjectAnimator.INFINITE
+        animator.repeatMode = ObjectAnimator.REVERSE
+        animator.start()
     }
-    private fun vibrarDispositivo(milisegundos: Long) {
+
+    private fun vibrarDispositivo(ms: Long) {
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE))
+            vibrator.vibrate(
+                VibrationEffect.createOneShot(
+                    ms,
+                    VibrationEffect.DEFAULT_AMPLITUDE
+                )
+            )
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(milisegundos)
+            vibrator.vibrate(ms)
         }
     }
 }

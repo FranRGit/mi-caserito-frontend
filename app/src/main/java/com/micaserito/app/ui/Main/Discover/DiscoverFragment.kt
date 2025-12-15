@@ -1,6 +1,8 @@
 package com.micaserito.app.ui.Main.Discover
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
@@ -12,101 +14,101 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
 import com.micaserito.app.R
-import com.micaserito.app.data.model.FeedItem
-import com.micaserito.app.data.model.ItemDetails
+import com.micaserito.app.data.api.MockData
+import com.micaserito.app.data.model.CategoriaNegocio
 
 class DiscoverFragment : Fragment(R.layout.fragment_discover) {
 
-    private lateinit var adapter: DiscoverAdapter
+    private lateinit var discoverAdapter: DiscoverAdapter
+    private lateinit var categoriesAdapter: CategoriesAdapter
     private var isLoading = false
     private var currentPage = 1
-    private var currentFilter = "todo" // "todo", "negocios", "productos"
-    private var searchQuery = "" // Para la búsqueda
+    private var currentFilter = "todo" // todo, business, product
+    private var currentCategoryId: Int? = null // ID de la categoría seleccionada
+    private var searchQuery = ""
+    private val allCategories = MockData.getCategories()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Configurar RecyclerView
-        val rvFeed = view.findViewById<RecyclerView>(R.id.rvDiscoverFeed)
-        val layoutManager = LinearLayoutManager(requireContext())
-        rvFeed.layoutManager = layoutManager
-        adapter = DiscoverAdapter()
-        rvFeed.adapter = adapter
+        // --- Configuración de Listas ---
+        setupAdapters(view)
 
-        // **********************************************
-        // INICIO DE CAMBIOS PARA BUSCADOR RECICLADO
-        // **********************************************
+        // --- Lógica de UI ---
+        setupUI(view)
 
-        // 2. RECEPCIÓN DE LA QUERY DE BÚSQUEDA DEL HOME/NAVEGACIÓN
+        // --- Lógica de Búsqueda Inicial ---
+        // Revisar si se pasó una query desde HomeFragment
         arguments?.getString("search_query")?.let { query ->
-            // Si hay una query válida (no en blanco), la aplicamos.
             if (query.isNotBlank()) {
                 searchQuery = query
-                // Muestra un Toast para confirmar que la búsqueda se aplicó
                 Toast.makeText(context, "Búsqueda inicial: \"$searchQuery\"", Toast.LENGTH_LONG).show()
             }
         }
 
-        // 2. Configurar Barra de Búsqueda
-        // SE ELIMINA LA LÓGICA DEL EDITTEXT DUPLICADO (R.id.searchBar)
-        /*
-        val searchBar = view.findViewById<EditText>(R.id.searchBar)
-        searchBar.setOnEditorActionListener { v, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                searchQuery = v.text.toString()
-                resetAndLoad()
-                true
-            } else {
-                false
-            }
-        }
-        */
+        // --- Carga Inicial ---
+        loadData()
+    }
 
-        // 3. Botón de Mis Tickets
-        // Se mantiene la inicialización de btnTickets
-        val btnTickets = view.findViewById<ImageButton>(R.id.btnTickets)
-        btnTickets.setOnClickListener {
-            findNavController().navigate(R.id.nav_tickets)
-        }
+    private fun setupAdapters(view: View) {
+        // Adapter del Feed Principal
+        val rvFeed = view.findViewById<RecyclerView>(R.id.rvDiscoverFeed)
+        rvFeed.layoutManager = LinearLayoutManager(requireContext())
+        discoverAdapter = DiscoverAdapter()
+        rvFeed.adapter = discoverAdapter
 
-        // 4. Configurar Chips (Filtros)
-        val chipGroup = view.findViewById<ChipGroup>(R.id.chipGroupFilter)
-        chipGroup.setOnCheckedChangeListener { _, checkedId ->
-            currentFilter = when (checkedId) {
-                R.id.chipNegocios -> "negocios"
-                R.id.chipProductos -> "productos"
-                else -> "todo"
-            }
-            // AL CAMBIAR EL FILTRO, DEBEMOS RESETEAR LA BÚSQUEDA INICIAL
+        // Adapter de Categorías
+        val rvCategories = view.findViewById<RecyclerView>(R.id.rvCategories)
+        rvCategories.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        categoriesAdapter = CategoriesAdapter(allCategories.map { it.nombre }) { selectedCategoryName ->
+            // --- Lógica de Clic en Categoría ---
+            currentCategoryId = allCategories.find { it.nombre == selectedCategoryName }?.id
+            // Limpiar la búsqueda al aplicar un filtro de categoría
             searchQuery = ""
             resetAndLoad()
         }
+        rvCategories.adapter = categoriesAdapter
+    }
 
-        // **********************************************
-        // FIN DE CAMBIOS PARA BUSCADOR RECICLADO
-        // **********************************************
+    private fun setupUI(view: View) {
+        // CORRECCIÓN: Usando el ID correcto del include: R.id.include_search_bar
+        val includeSearchBarView = view.findViewById<View>(R.id.include_search_bar)
 
-        // 5. Infinite Scroll
-        rvFeed.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+        // CORRECCIÓN: Usando el ID correcto del EditText: R.id.et_search_input
+        val searchBar = includeSearchBarView?.findViewById<EditText>(R.id.et_search_input)
 
-                if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount && firstVisibleItemPosition >= 0) {
-                    loadMoreData()
-                }
+        if (searchBar != null) {
+            searchBar.setOnEditorActionListener { v, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    searchQuery = v.text.toString()
+                    currentCategoryId = null // Limpiar filtro de categoría al buscar
+                    resetAndLoad()
+                    true
+                } else { false }
             }
-        })
+        }
 
-        // Carga Inicial
-        loadData()
+        view.findViewById<ImageButton>(R.id.btnTickets).setOnClickListener {
+            findNavController().navigate(R.id.nav_tickets)
+        }
+
+        view.findViewById<ChipGroup>(R.id.chipGroupFilter).setOnCheckedChangeListener { _, checkedId ->
+            currentFilter = when (checkedId) {
+                R.id.chipNegocios -> "business"
+                R.id.chipProductos -> "product"
+                else -> "todo"
+            }
+            // Limpiar búsqueda y categoría al cambiar el filtro principal
+            searchQuery = ""
+            currentCategoryId = null
+            resetAndLoad()
+        }
     }
 
     private fun resetAndLoad() {
         currentPage = 1
-        adapter.clear()
+        discoverAdapter.clear()
         loadData()
     }
 
@@ -114,48 +116,19 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
         isLoading = true
         view?.findViewById<View>(R.id.progressBarDiscover)?.visibility = View.VISIBLE
 
-        // SIMULACIÓN DE API CON DATOS DE EJEMPLO
-        android.os.Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             isLoading = false
             view?.findViewById<View>(R.id.progressBarDiscover)?.visibility = View.GONE
 
-            // loadData ahora utiliza el searchQuery actualizado.
-            val mockData = createMockData(currentPage, currentFilter, searchQuery)
-            if (mockData.isNotEmpty()) {
-                adapter.addList(mockData)
+            // --- LLAMADA A MOCKDATA CON FILTROS ---
+            val response = MockData.getDiscoverResults(currentFilter, currentCategoryId, searchQuery)
+            val items = response.data.items ?: emptyList()
+
+            if (items.isNotEmpty()) {
+                discoverAdapter.addList(items)
             } else {
-                Toast.makeText(context, "No hay más resultados", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "No se encontraron resultados", Toast.LENGTH_SHORT).show()
             }
-        }, 1200)
-    }
-
-    private fun loadMoreData() {
-        currentPage++
-        loadData()
-    }
-
-    // --- FUNCIÓN DE SIMULACIÓN (BORRAR AL CONECTAR API REAL) ---
-    private fun createMockData(page: Int, filter: String, query: String): List<FeedItem> {
-        if (page > 3) return emptyList() // Simular que no hay más páginas
-
-        val items = mutableListOf<FeedItem>()
-
-        // Si hay una búsqueda, mostrar solo un item de ejemplo
-        if (query.isNotEmpty()) {
-            items.add(FeedItem("product", ItemDetails(nombreProducto = "Resultado de '$query'", precioBase = 99.9, nombreNegocio = "Búsqueda Rápida")))
-            return items
-        }
-
-        // Lógica de Filtros
-        if (filter == "todo" || filter == "productos") {
-            items.add(FeedItem("product", ItemDetails(nombreProducto = "Pollo a la brasa (Pág $page)", precioBase = 25.5, nombreNegocio = "Pardos Chicken")))
-            items.add(FeedItem("product", ItemDetails(nombreProducto = "Lomo Saltado (Pág $page)", precioBase = 35.0, nombreNegocio = "Tanta")))
-        }
-
-        if (filter == "todo" || filter == "negocios") {
-            items.add(FeedItem("post", ItemDetails(descripcion = "¡Nuevo local en Miraflores! (Pág $page)", fechaCreacion = "Hace 2 horas", nombreNegocio = "Starbucks")))
-        }
-
-        return items.shuffled() // Mezclar para que se vea más real
+        }, 500)
     }
 }
