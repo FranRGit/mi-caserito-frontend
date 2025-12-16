@@ -129,7 +129,7 @@ class MockApiService : ApiService {
     // ================= USUARIO (Tickets y Seguridad) =================
     override suspend fun getMyTickets(page: Int): Response<List<TicketSummary>> {
         delay(NETWORK_DELAY)
-        return Response.success(MockData.getMyTickets())
+        return Response.success(MockData.getMyTickets(userId = 1, userRole = "cliente"))
     }
 
     override suspend fun getSentReports(page: Int): Response<List<ReportSummary>> {
