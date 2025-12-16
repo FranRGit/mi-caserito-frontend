@@ -1,17 +1,17 @@
-package com.micaserito.app.ui.Main.Security
+package com.micaserito.app.ui.security
 
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.R
 import com.micaserito.app.data.api.MockData
+import com.micaserito.app.ui.Main.Security.ReportsAdapter
 
 class SecurityFragment : Fragment(R.layout.fragment_security) {
 
@@ -25,29 +25,30 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicialización de vistas
+        // 1. Inicializar todas las vistas
         rvReports = view.findViewById(R.id.rvReports)
         btnIncidencias = view.findViewById(R.id.btnIncidencias)
         btnSanciones = view.findViewById(R.id.btnSanciones)
         val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
 
-        // Configuración del RecyclerView
+        // 2. Configurar el RecyclerView
         adapter = ReportsAdapter()
         rvReports.layoutManager = LinearLayoutManager(context)
         rvReports.adapter = adapter
 
-        // Listeners
+        // 3. Configurar los listeners
         btnBack.setOnClickListener { findNavController().popBackStack() }
         btnIncidencias.setOnClickListener { switchTab(true) }
         btnSanciones.setOnClickListener { switchTab(false) }
 
-        // Carga inicial
+        // 4. Cargar el estado inicial
         updateTabStyles()
         loadData()
     }
 
     private fun switchTab(selectIncidencias: Boolean) {
         if (isIncidenciasSelected == selectIncidencias) return // No hacer nada si ya está seleccionada
+        
         isIncidenciasSelected = selectIncidencias
         updateTabStyles()
         loadData()

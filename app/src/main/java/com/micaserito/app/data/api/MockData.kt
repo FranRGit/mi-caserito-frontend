@@ -11,13 +11,13 @@ object MockData {
     private const val ID_VENDEDOR_1 = 2
     private const val ID_NEGOCIO_1 = 100
     private const val NOMBRE_NEGOCIO_1 = "Bodega Don Pepe"
-    private const val IMG_NEGOCIO_1 = "https://i.pravatar.cc/150?img=33"
+    private const val IMG_NEGOCIO_1 = "https://i.pinimg.com/originals/c7/d8/28/c7d828551b87693525283839d3326532.gif"
 
     // Negocio 2: Ferretería (NUEVO)
     private const val ID_VENDEDOR_2 = 3
     private const val ID_NEGOCIO_2 = 200
     private const val NOMBRE_NEGOCIO_2 = "Ferretería El Clavo"
-    private const val IMG_NEGOCIO_2 = "https://i.pravatar.cc/150?img=11"
+    private const val IMG_NEGOCIO_2 = "https://www.pngall.com/wp-content/uploads/2/Nail-PNG-Image.png"
 
 
     // Negocio 3: Tecnología y Servicio Técnico
@@ -560,7 +560,30 @@ object MockData {
         return false
     }
     fun addMyTicket(ticket: TicketSummary) {}
-    fun getReports(tipo: String) = emptyList<ReportSummary>()
+    
+    // --- CENTRO DE SEGURIDAD ---
+    private val sentReports = listOf(
+        ReportSummary(1, "Retraso", "Producto no entregado", NOMBRE_NEGOCIO_1, "En revisión", "2024-05-20"),
+        ReportSummary(2, "Estafa", "Comentarios inapropiados", "Usuario 'Molesto256'", "Pendiente", "2024-05-18"),
+        ReportSummary(3, "Entrega", "Se realizo la entrega con exito", "Usuario 'Feliz123'", "Resuelta", "2024-05-01"),
+        ReportSummary(4, "Problema", "Falta un componente", "Usuario 'Molesto123'", "Rechazada", "2024-05-12"),
+        ReportSummary(5, "Problema", "Producto equivocado", "Usuario 'Molesto124'", "En revisión", "2024-12-24")
+    )
+
+    private val receivedReports = listOf(
+        ReportSummary(101, "Sanción", "Advertencia por entrega tardía", "Sistema Mi Caserito", "Activa", "2024-05-15"),
+        ReportSummary(102, "Advertencia", "Suspensión temporal (48h)", "Sistema Mi Caserito", "Expirada", "2024-04-22"),
+        ReportSummary(103, "Falta", "Suspensión temporal (5h)", "Sistema Mi Caserito", "Activa", "2024-04-22")
+    )
+
+    fun getReports(tipo: String): List<ReportSummary> {
+        return when (tipo) {
+            "sent" -> sentReports
+            "received" -> receivedReports
+            else -> emptyList()
+        }
+    }
+
     fun getChatList() = listOf(ChatSummary(1, NOMBRE_NEGOCIO_1, IMG_NEGOCIO_1, "Hola", 0, "2025-10-25"))
     fun getChatMessages() = emptyList<ChatMessage>()
 
