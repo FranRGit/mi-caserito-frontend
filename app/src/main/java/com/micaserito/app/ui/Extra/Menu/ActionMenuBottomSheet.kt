@@ -60,6 +60,18 @@ class ActionMenuBottomSheet : BottomSheetDialogFragment() {
             (activity as? MainActivity)?.navigateTo(R.id.nav_upload_post)
             dismiss() // Cierra el menú flotante después de navegar
         }
+
+        // Clic en Ir a Centro de Seguridad
+        binding.btnGoToSecurity.setOnClickListener {
+            (activity as? MainActivity)?.navigateTo(R.id.nav_security)
+            dismiss() // Cierra el menú flotante después de navegar
+        }
+
+        // Clic en Mis Tickets
+        binding.btnMyTickets.setOnClickListener {
+            (activity as? MainActivity)?.navigateTo(R.id.nav_tickets)
+            dismiss() // Cierra el menú flotante después de navegar
+        }
     }
 
     // ... (Métodos onDestroyView y companion object siguen igual) ...

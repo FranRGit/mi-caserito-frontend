@@ -6,16 +6,13 @@ import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
 import com.micaserito.app.R
 import com.micaserito.app.data.api.MockData
-import com.micaserito.app.data.model.CategoriaNegocio
 
 class DiscoverFragment : Fragment(R.layout.fragment_discover) {
 
@@ -38,7 +35,7 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
         setupUI(view)
 
         // --- Lógica de Búsqueda Inicial ---
-        // Revisar si se pasó una query desde HomeFragment
+        // Revisar si se pasó una query desde HomeFragment u otro lado
         arguments?.getString("search_query")?.let { query ->
             if (query.isNotBlank()) {
                 searchQuery = query
@@ -51,14 +48,16 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
     }
 
     private fun setupAdapters(view: View) {
-        // Adapter del Feed Principal
-        val rvFeed = view.findViewById<RecyclerView>(R.id.rvDiscoverFeed)
+        // 1. Adapter del Feed Principal
+        // ACTUALIZADO: ID cambiado para coincidir con el XML (rv_home_feed)
+        val rvFeed = view.findViewById<RecyclerView>(R.id.rv_home_feed)
         rvFeed.layoutManager = LinearLayoutManager(requireContext())
         discoverAdapter = DiscoverAdapter()
         rvFeed.adapter = discoverAdapter
 
-        // Adapter de Categorías
-        val rvCategories = view.findViewById<RecyclerView>(R.id.rvCategories)
+        // 2. Adapter de Categorías
+        // ID correcto según el XML (rv_categories)
+        val rvCategories = view.findViewById<RecyclerView>(R.id.rv_categories)
         rvCategories.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         categoriesAdapter = CategoriesAdapter(allCategories.map { it.nombre }) { selectedCategoryName ->
@@ -72,10 +71,8 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
     }
 
     private fun setupUI(view: View) {
-        // CORRECCIÓN: Usando el ID correcto del include: R.id.include_search_bar
+        // Configuración del SearchBar (IDs coinciden con el include)
         val includeSearchBarView = view.findViewById<View>(R.id.include_search_bar)
-
-        // CORRECCIÓN: Usando el ID correcto del EditText: R.id.et_search_input
         val searchBar = includeSearchBarView?.findViewById<EditText>(R.id.et_search_input)
 
         if (searchBar != null) {
@@ -89,15 +86,14 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
             }
         }
 
-        view.findViewById<ImageButton>(R.id.btnTickets).setOnClickListener {
-            findNavController().navigate(R.id.nav_tickets)
-        }
-
-        view.findViewById<ChipGroup>(R.id.chipGroupFilter).setOnCheckedChangeListener { _, checkedId ->
+        // ACTUALIZADO: IDs del ChipGroup y los Chips individuales
+        val chipGroup = view.findViewById<ChipGroup>(R.id.cg_main_filters)
+        chipGroup.setOnCheckedChangeListener { _, checkedId ->
             currentFilter = when (checkedId) {
-                R.id.chipNegocios -> "business"
-                R.id.chipProductos -> "product"
-                else -> "todo"
+                R.id.chip_negocios -> "business" // Coincide con XML
+                R.id.chip_productos -> "product" // Coincide con XML
+                R.id.chip_todo -> "todo"         // Coincide con XML
+                else -> "todo" // Caso por defecto si no hay selección (aunque selectionRequired lo evita)
             }
             // Limpiar búsqueda y categoría al cambiar el filtro principal
             searchQuery = ""
@@ -114,19 +110,23 @@ class DiscoverFragment : Fragment(R.layout.fragment_discover) {
 
     private fun loadData() {
         isLoading = true
-        view?.findViewById<View>(R.id.progressBarDiscover)?.visibility = View.VISIBLE
+        // ACTUALIZADO: ID del ProgressBar (progress_bar_loading)
+        val progressBar = view?.findViewById<View>(R.id.progress_bar_loading)
+        progressBar?.visibility = View.VISIBLE
 
         Handler(Looper.getMainLooper()).postDelayed({
             isLoading = false
-            view?.findViewById<View>(R.id.progressBarDiscover)?.visibility = View.GONE
+            progressBar?.visibility = View.GONE
 
             // --- LLAMADA A MOCKDATA CON FILTROS ---
+            // Asegúrate de que tu función MockData acepte estos parámetros
             val response = MockData.getDiscoverResults(currentFilter, currentCategoryId, searchQuery)
             val items = response.data.items ?: emptyList()
 
             if (items.isNotEmpty()) {
                 discoverAdapter.addList(items)
             } else {
+                // Opcional: Mostrar vista de "No resultados" si la lista está vacía
                 Toast.makeText(context, "No se encontraron resultados", Toast.LENGTH_SHORT).show()
             }
         }, 500)

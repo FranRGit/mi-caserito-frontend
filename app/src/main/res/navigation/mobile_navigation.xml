@@ -45,13 +45,13 @@
 
     <fragment
         android:id="@+id/nav_security"
-        android:name="com.micaserito.app.ui.Main.Security.SecurityFragment"
+        android:name="com.micaserito.app.ui.security.SecurityFragment"
         android:label="Seguridad"
         tools:layout="@layout/fragment_security" />
 
     <fragment
         android:id="@+id/nav_tickets"
-        android:name="com.micaserito.app.ui.Main.Tickets.TicketsFragment"
+        android:name="com.micaserito.app.ui.tickets.TicketsFragment"
         android:label="Mis Compras"
         tools:layout="@layout/fragment_tickets" />
     <fragment

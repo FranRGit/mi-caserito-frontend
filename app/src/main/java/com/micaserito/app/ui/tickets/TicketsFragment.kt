@@ -1,4 +1,4 @@
-package com.micaserito.app.ui.Main.Tickets
+package com.micaserito.app.ui.tickets
 
 import android.os.Bundle
 import android.view.View
@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.R
 import com.micaserito.app.data.api.MockData
+import com.micaserito.app.ui.Main.Tickets.TicketsAdapter
 
 class TicketsFragment : Fragment(R.layout.fragment_tickets) {
 
@@ -20,20 +21,24 @@ class TicketsFragment : Fragment(R.layout.fragment_tickets) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 1. Inicializar las vistas
         rvTickets = view.findViewById(R.id.rvTickets)
         tvNoTickets = view.findViewById(R.id.tvNoTickets)
-        rvTickets.layoutManager = LinearLayoutManager(context)
+        val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
+
+        // 2. Configurar el RecyclerView
         adapter = TicketsAdapter()
+        rvTickets.layoutManager = LinearLayoutManager(context)
         rvTickets.adapter = adapter
 
-        val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
+        // 3. Listeners
         btnBack.setOnClickListener { findNavController().popBackStack() }
 
-        loadTicketsFromMockData()
+        // 4. Cargar los datos
+        loadTickets()
     }
 
-    private fun loadTicketsFromMockData() {
-        adapter.clear()
+    private fun loadTickets() {
         val tickets = MockData.getMyTickets()
 
         if (tickets.isEmpty()) {
@@ -42,6 +47,7 @@ class TicketsFragment : Fragment(R.layout.fragment_tickets) {
         } else {
             rvTickets.visibility = View.VISIBLE
             tvNoTickets.visibility = View.GONE
+            adapter.clear()
             adapter.addList(tickets)
         }
     }
