@@ -66,4 +66,25 @@
         android:label="Publicar Post"
         tools:layout="@layout/fragment_upload_post" />
 
+    <fragment
+        android:id="@+id/nav_tickets"
+        android:name="com.micaserito.app.ui.Main.Tickets.TicketsFragment"
+        android:label="Mis Compras"
+        tools:layout="@layout/fragment_tickets">
+
+        <action
+            android:id="@+id/action_nav_tickets_to_nav_ticket_detail"
+            app:destination="@id/nav_ticket_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_ticket_detail"
+        android:name="com.micaserito.app.ui.Main.Tickets.TicketDetailFragment"
+        android:label="Ticket de Entrega"
+        tools:layout="@layout/fragment_ticket_detail">
+
+        <argument
+            android:name="ticketId"
+            app:argType="integer" />
+    </fragment>
 </navigation>
