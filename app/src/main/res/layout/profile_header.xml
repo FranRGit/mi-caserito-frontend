@@ -52,11 +52,11 @@
         <ImageView
             android:id="@+id/ivMenuOptions"
             android:layout_width="20sp"
-            android:layout_height="20sp"
+            android:layout_height="13dp"
             android:layout_marginStart="8dp"
+            android:contentDescription="Menú de opciones"
             android:src="@drawable/ic_more"
-            app:tint="#616161"
-            android:contentDescription="Menú de opciones" />
+            app:tint="#616161" />
 
     </LinearLayout>
 
