@@ -96,8 +96,8 @@ class MockApiService : ApiService {
 
     override suspend fun getBusinessProducts(id: Int, page: Int): Response<List<ItemDetails>> {
         delay(1000)
-        // Llama a MockData.getBusinessProducts(id), pasando el ID del negocio
-        return Response.success(MockData.getBusinessProducts(id))
+        val products = MockData.getBusinessProducts(id)
+        return Response.success(products)
     }
 
     override suspend fun getBusinessPosts(id: Int, page: Int): Response<List<ItemDetails>> {
