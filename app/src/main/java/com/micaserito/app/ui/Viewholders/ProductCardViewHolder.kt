@@ -1,5 +1,5 @@
 package com.micaserito.app.ui.Viewholders
-
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.View
@@ -8,11 +8,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
+import com.bumptech.glide.Glide
 import com.micaserito.app.R
 import com.micaserito.app.data.api.MockData
 import com.micaserito.app.data.model.ItemDetails
 import com.micaserito.app.data.model.TicketSummary
+import com.google.android.material.button.MaterialButton
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -32,15 +33,38 @@ class ProductCardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) 
     private var isAdded = false
 
     fun render(item: ItemDetails) {
+
+        // --- Reset estado reciclado ---
+        isAdded = false
+        btnAddTicket.backgroundTintList =
+            ColorStateList.valueOf(Color.parseColor("#2E7D32"))
+
+        // --- Datos ---
         tvSellerName.text = item.nombreNegocio ?: "Negocio Desconocido"
         tvProductName.text = item.nombreProducto ?: "Producto"
         tvProductPrice.text = "S/. ${String.format("%.2f", item.precioBase ?: 0.0)}"
         tvProductDesc.text = item.descripcion ?: ""
 
+        // --- Imagen del Producto ---
+        val imageUrl = item.imageUrl
+        if (!imageUrl.isNullOrBlank()) {
+            ivProductImage.visibility = View.VISIBLE
+
+            Glide.with(itemView)
+                .load(imageUrl)
+                .placeholder(android.R.color.darker_gray)
+                .centerCrop()
+                .into(ivProductImage)
+        } else {
+            ivProductImage.visibility = View.INVISIBLE
+            Glide.with(itemView).clear(ivProductImage)
+        }
+
         setupClickListeners(item)
     }
 
     private fun setupClickListeners(item: ItemDetails) {
+
         btnOptions.setOnClickListener {
             Toast.makeText(itemView.context, "Ver más opciones", Toast.LENGTH_SHORT).show()
         }
@@ -62,14 +86,24 @@ class ProductCardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) 
                     fecha = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date())
                 )
 
-                // --- LLAMADA A MOCKDATA ---
                 MockData.addMyTicket(newTicket)
-                
-                btnAddTicket.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
-                Toast.makeText(itemView.context, "Ticket generado: ${newTicket.codigoTicket}", Toast.LENGTH_SHORT).show()
+
+                btnAddTicket.backgroundTintList =
+                    ColorStateList.valueOf(Color.GRAY)
+
+                Toast.makeText(
+                    itemView.context,
+                    "Ticket generado: ${newTicket.codigoTicket}",
+                    Toast.LENGTH_SHORT
+                ).show()
+
                 isAdded = true
             } else {
-                Toast.makeText(itemView.context, "Este producto ya tiene un ticket", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    itemView.context,
+                    "Este producto ya tiene un ticket",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

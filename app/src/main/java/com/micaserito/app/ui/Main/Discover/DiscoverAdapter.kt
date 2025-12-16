@@ -1,10 +1,11 @@
 package com.micaserito.app.ui.Main.Discover
-
+import com.micaserito.app.data.model.ItemDetails
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.micaserito.app.R
 import com.micaserito.app.data.model.FeedItem
+
 import com.micaserito.app.ui.Viewholders.PostCardViewHolder
 import com.micaserito.app.ui.Viewholders.ProductCardViewHolder
 
@@ -62,9 +63,11 @@ class DiscoverAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         // Aquí pasamos los datos al ViewHolder correspondiente
         when (holder) {
             is ProductCardViewHolder -> {
+                // El error ocurre aquí si holder.render() espera un tipo diferente al de item.details
                 holder.render(item.details)
             }
             is PostCardViewHolder -> {
+                // El error ocurre aquí si holder.render() espera un tipo diferente al de item.details
                 holder.render(item.details)
             }
         }
