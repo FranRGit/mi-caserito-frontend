@@ -27,7 +27,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_plus"
+            android:src="@drawable/ic_minus"
             app:tint="#757575"
             android:contentDescription="Restar" />
         <TextView

@@ -383,6 +383,27 @@ object MockData {
         return ticketsDB.removeIf { it.idTicket == ticketId }
     }
 
+    // D. Aprobar Ticket (Vendedor define fecha y lugar)
+    fun approveTicket(ticketId: Int, puntoEntrega: String, fechaEntrega: String): Boolean {
+        val ticket = ticketsDB.find { it.idTicket == ticketId } ?: return false
+
+        // Solo si está NEGOCIANDO pasa a EN_PROCESO
+        if (ticket.estado == com.micaserito.app.data.model.TicketStatus.NEGOCIANDO) {
+            ticket.estado = com.micaserito.app.data.model.TicketStatus.EN_PROCESO
+            ticket.puntoEntrega = puntoEntrega
+            ticket.fechaEntrega = fechaEntrega
+            return true
+        }
+        return false
+    }
+
+    // E. Rechazar Ticket
+    fun rejectTicket(ticketId: Int): Boolean {
+        val ticket = ticketsDB.find { it.idTicket == ticketId } ?: return false
+        ticket.estado = com.micaserito.app.data.model.TicketStatus.ANULADO
+        return true
+    }
+
     fun addMyTicket(ticket: TicketSummary) {}
     fun getReports(tipo: String) = emptyList<ReportSummary>()
     fun getChatList() = listOf(ChatSummary(1, NOMBRE_NEGOCIO_1, IMG_NEGOCIO_1, "Hola", 0, "2025-10-25"))

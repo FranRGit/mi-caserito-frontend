@@ -30,6 +30,13 @@ class TicketDetailFragment : Fragment(R.layout.fragment_ticket_detail) { // Crea
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //Retroceder
+        val btnBack = view.findViewById<View>(R.id.btnBackDetail)
+        btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        // Cargar Ticket
         val ticket = MockData.getTicketById(ticketId)
         if (ticket == null) {
             Toast.makeText(context, "Ticket no encontrado", Toast.LENGTH_SHORT).show()

@@ -39,7 +39,10 @@ class TicketsFragment : Fragment(R.layout.fragment_tickets) {
         rvTickets.adapter = adapter
 
         val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
-        btnBack.setOnClickListener { findNavController().popBackStack() }
+        btnBack.setOnClickListener {
+            // Esto hace que "vuelva a la normalidad" (retroceda)
+            findNavController().popBackStack()
+        }
     }
 
     override fun onResume() {

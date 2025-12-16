@@ -130,13 +130,17 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvClientName">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
                     android:padding="16dp">
 
                     <LinearLayout
+                        android:id="@+id/layoutProductList"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:visibility="visible"> <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -148,46 +152,137 @@
                             android:text="Producto"
                             android:textStyle="bold"/>
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="100dp"
                             android:layout_height="wrap_content"
                             android:text="Cant."
-                            android:layout_marginEnd="16dp"
+                            android:gravity="center"
                             android:textStyle="bold"/>
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="80dp"
                             android:layout_height="wrap_content"
                             android:text="Precio"
+                            android:gravity="end"
                             android:textStyle="bold"/>
                     </LinearLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvProductsDetail"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        tools:listitem="@layout/item_ticket_product_detail"/>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvProductsDetail"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            tools:listitem="@layout/item_ticket_product_detail"/>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:layout_marginTop="12dp">
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Total"
-                            android:textStyle="bold"
-                            android:textSize="16sp"
-                            android:layout_marginEnd="16dp"/>
-                        <TextView
-                            android:id="@+id/tvTotalDetail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="S/. 0.00"
-                            android:textSize="16sp"/>
+                            android:gravity="end"
+                            android:layout_marginTop="12dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:layout_marginEnd="16dp"/>
+                            <TextView
+                                android:id="@+id/tvTotalDetail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="S/. 0.00"
+                                android:textSize="16sp"/>
+                        </LinearLayout>
                     </LinearLayout>
 
-                </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/layoutNegotiationForm"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:visibility="gone"> <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Punto de entrega:"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                        <EditText
+                            android:id="@+id/etDeliveryPoint"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_rounded_input"
+                            android:hint="Escoge una ubicación"
+                            android:padding="12dp"
+                            android:textSize="14sp"
+                            android:layout_marginBottom="16dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Fecha de entrega:"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp"/>
+
+                        <TextView
+                            android:id="@+id/tvDeliveryDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_rounded_input"
+                            android:hint="Escoge la fecha y hora"
+                            android:padding="12dp"
+                            android:textSize="14sp"
+                            android:drawablePadding="8dp"
+                            app:drawableStartCompat="@android:drawable/ic_menu_my_calendar"
+                            android:layout_marginBottom="16dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total:"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/tvTotalNegotiation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="S/. 999.99"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="16dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Detalle del pedido"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnViewDetails"
+                            android:layout_width="wrap_content"
+                            android:layout_height="35dp"
+                            android:text="Ver detalles"
+                            android:textSize="12sp"
+                            android:paddingVertical="0dp"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:textColor="#388E3C"
+                            app:strokeColor="#388E3C"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Estado del Ticket:"
+                            android:textStyle="bold"
+                            android:layout_marginTop="12dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Negociando"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_circle_gray"
+                            android:textSize="12sp"
+                            android:layout_marginTop="4dp"/>
+
+                    </LinearLayout>
+
+                </FrameLayout>
             </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
