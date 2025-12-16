@@ -404,6 +404,17 @@ object MockData {
         return true
     }
 
+    // F. Completar Ticket (Verificación de código)
+    fun completeTicket(ticketId: Int, inputCode: String): Boolean {
+        val ticket = ticketsDB.find { it.idTicket == ticketId } ?: return false
+        val validCode = ticket.codigoVerificacion ?: "12345"
+
+        if (inputCode == validCode) {
+            ticket.estado = com.micaserito.app.data.model.TicketStatus.COMPLETADO
+            return true
+        }
+        return false
+    }
     fun addMyTicket(ticket: TicketSummary) {}
     fun getReports(tipo: String) = emptyList<ReportSummary>()
     fun getChatList() = listOf(ChatSummary(1, NOMBRE_NEGOCIO_1, IMG_NEGOCIO_1, "Hola", 0, "2025-10-25"))
