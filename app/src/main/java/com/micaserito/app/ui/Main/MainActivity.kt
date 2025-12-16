@@ -86,8 +86,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showActionMenu() {
+        // 1. Determina si el usuario es vendedor.
         val isSeller = currentUserType == "vendedor"
+
+        // 2. Crea el menú, pasándole si es vendedor o no.
         val bottomSheet = ActionMenuBottomSheet.newInstance(isSeller)
+
+        // 3. Muestra el menú. ESTE PASO SE EJECUTA SIEMPRE.
         bottomSheet.show(supportFragmentManager, ActionMenuBottomSheet.TAG)
     }
 }

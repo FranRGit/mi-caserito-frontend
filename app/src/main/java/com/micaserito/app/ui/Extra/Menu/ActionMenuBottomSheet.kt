@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.micaserito.app.R
-import com.micaserito.app.databinding.FragmentActionMenuBinding // Usamos el Binding del XML
-import com.micaserito.app.ui.Main.MainActivity // Importamos la Activity
+import com.micaserito.app.databinding.FragmentActionMenuBinding
+import com.micaserito.app.ui.Main.MainActivity
 
 class ActionMenuBottomSheet : BottomSheetDialogFragment() {
 
@@ -22,8 +22,6 @@ class ActionMenuBottomSheet : BottomSheetDialogFragment() {
         arguments?.let {
             isSeller = it.getBoolean(ARG_IS_SELLER, false)
         }
-        // Opcional: Estilo de BottomSheet para evitar esquinas redondeadas si es necesario
-        // setStyle(STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
     }
 
     override fun onCreateView(
@@ -38,43 +36,66 @@ class ActionMenuBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // La lógica para mostrar el menú de acciones de Vendedor
+        // LÓGICA CORREGIDA: Ambos roles acceden al menú, pero se configuran diferente.
         if (isSeller) {
             setupSellerActions()
         } else {
-            // Si es Comprador, simplemente se cierra el Bottom Sheet.
-            dismiss()
-            (activity as? MainActivity)?.navigateTo(R.id.nav_profile)
+            setupCustomerActions() // El cliente accede a sus acciones compartidas
         }
     }
 
+    /**
+     * Configura las acciones para el Vendedor (Publicar Producto, Post, Tickets, Seguridad)
+     */
     private fun setupSellerActions() {
+        // Mostrar opciones de Publicación
+        binding.btnUploadProduct.visibility = View.VISIBLE
+        binding.btnUploadPost.visibility = View.VISIBLE
+
         // Clic en Publicar Producto
         binding.btnUploadProduct.setOnClickListener {
             (activity as? MainActivity)?.navigateTo(R.id.nav_upload_product)
-            dismiss() // Cierra el menú flotante después de navegar
+            dismiss()
         }
 
         // Clic en Publicar Post/Novedad
         binding.btnUploadPost.setOnClickListener {
             (activity as? MainActivity)?.navigateTo(R.id.nav_upload_post)
-            dismiss() // Cierra el menú flotante después de navegar
+            dismiss()
         }
 
+        // Configuración de acciones compartidas (Tickets y Seguridad)
+        setupSharedActions()
+    }
+
+    /**
+     * Configura las acciones para el Cliente (Tickets, Seguridad)
+     */
+    private fun setupCustomerActions() {
+        // Ocultar opciones de Publicación, exclusivas del vendedor
+        binding.btnUploadProduct.visibility = View.GONE
+        binding.btnUploadPost.visibility = View.GONE
+
+        // Configuración de acciones compartidas (Tickets y Seguridad)
+        setupSharedActions()
+    }
+
+    /**
+     * Configura los listeners para las acciones disponibles para AMBOS roles (Tickets y Seguridad).
+     */
+    private fun setupSharedActions() {
         // Clic en Ir a Centro de Seguridad
         binding.btnGoToSecurity.setOnClickListener {
             (activity as? MainActivity)?.navigateTo(R.id.nav_security)
-            dismiss() // Cierra el menú flotante después de navegar
+            dismiss()
         }
 
         // Clic en Mis Tickets
         binding.btnMyTickets.setOnClickListener {
             (activity as? MainActivity)?.navigateTo(R.id.nav_tickets)
-            dismiss() // Cierra el menú flotante después de navegar
+            dismiss()
         }
     }
-
-    // ... (Métodos onDestroyView y companion object siguen igual) ...
 
     override fun onDestroyView() {
         super.onDestroyView()
